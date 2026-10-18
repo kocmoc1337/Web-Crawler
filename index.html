@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Паук-конспектор</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@600&display=swap">
+<style>
+/* Layout: a paper sheet on a cool desk; the spider walks over the sheet and spins its web there.
+   The catch (facts, summary, keywords) sits in a sticky panel on the right, or in a bottom sheet on phones. */
+:root {
+  --desk: #e6eae7;
+  --paper: #ffffff;
+  --ink: #1b2220;
+  --muted: #5d6965;
+  --line: #d3dad6;
+  --thread: #1a86a8;
+  --spider: #141918;
+  --c1: #1d8048; --c2: #7444cc; --c3: #c96612; --c4: #c02b78;
+  --k1: #2a67cf; --k2: #0d8a7e; --k3: #c13b2b; --k4: #8f620c; --k5: #4c41bd; --k6: #577519;
+  --hl: rgb(255 214 51 / .55);
+  --c-search: #0596bb;
+  --shadow: rgb(20 30 28 / .18);
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-doc: "PT Serif", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --hdr: 60px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #0f1312; --paper: #181d1c; --ink: #e2e8e5; --muted: #95a29d; --line: #2a3331;
+    --thread: #4dbfe0; --spider: #e3ebe7;
+    --c1: #4cc282; --c2: #a98bf3; --c3: #ef9348; --c4: #ec6aa8;
+    --k1: #6d9df2; --k2: #3fc3b4; --k3: #ef7b6b; --k4: #d6a643; --k5: #918af2; --k6: #9fc055;
+    --hl: rgb(255 205 60 / .28); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #0f1312; --paper: #181d1c; --ink: #e2e8e5; --muted: #95a29d; --line: #2a3331;
+  --thread: #4dbfe0; --spider: #e3ebe7;
+  --c1: #4cc282; --c2: #a98bf3; --c3: #ef9348; --c4: #ec6aa8;
+  --k1: #6d9df2; --k2: #3fc3b4; --k3: #ef7b6b; --k4: #d6a643; --k5: #918af2; --k6: #9fc055;
+  --hl: rgb(255 205 60 / .28); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .5);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--desk);
+  color: var(--ink);
+  font: 15px/1.5 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--paper);
+}
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--thread); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Header ---------- */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15;
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.top-in {
+  max-width: 1240px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px; margin-right: auto;
+  font: 600 16px/1 var(--font-display); letter-spacing: -.01em; white-space: nowrap;
+}
+.brand svg { width: 26px; height: 26px; color: var(--spider); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn, .sel {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 6px 12px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper); color: var(--ink);
+  font: 500 14px/1.2 var(--font-ui); cursor: pointer;
+}
+.btn:hover, .sel:hover { border-color: var(--muted); }
+.btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.small { min-height: 30px; padding: 4px 10px; font-size: 13px; }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn:disabled { opacity: .45; cursor: default; }
+.sel { padding-right: 8px; }
+
+/* ---------- Layout ---------- */
+.layout {
+  max-width: 1240px; margin: 0 auto;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px;
+  padding-block: 18px calc(46vh + 24px);
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; padding-block: 24px 48px; }
+}
+
+/* ---------- Sheet (document) ---------- */
+.sheet {
+  position: relative; min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--line); border-radius: 3px;
+  box-shadow: 0 18px 40px -26px var(--shadow);
+  padding: clamp(18px, 5vw, 56px);
+}
+.doc-head {
+  max-width: 68ch; margin: 0 auto 22px; padding-bottom: 14px;
+  border-bottom: 1px dashed var(--line);
+  display: grid; gap: 6px;
+}
+.doc-title { font: 600 clamp(17px, 2.4vw, 21px)/1.25 var(--font-display); margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.doc-meta { font: 500 12px/1.4 var(--font-mono); color: var(--muted); letter-spacing: .02em; }
+.sample-note {
+  display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
+  font-size: 13px; color: var(--muted);
+}
+.sample-note b { color: var(--ink); font-weight: 600; }
+.doc {
+  max-width: 68ch; margin: 0 auto;
+  font: 17px/1.65 var(--font-doc);
+  overflow-wrap: break-word;
+}
+.doc p { margin: 0 0 .85em; }
+.doc h3 { font: 600 15px/1.4 var(--font-ui); letter-spacing: .01em; margin: 1.5em 0 .55em; text-wrap: balance; }
+.doc h3:first-child { margin-top: 0; }
+.sheet-foot {
+  max-width: 68ch; margin: 26px auto 0; padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  font-size: 12.5px; color: var(--muted);
+}
+
+mark { background: none; color: inherit; padding: 0; border-radius: 2px; transition: background-color .3s, box-shadow .3s; }
+mark.lit.v {
+  background: color-mix(in srgb, var(--c) 15%, transparent);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--c) 75%, transparent);
+}
+mark.lit.t { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--c) 75%, transparent); }
+mark.off { background: none !important; box-shadow: none !important; }
+.s.key.lit {
+  background-image: linear-gradient(transparent 55%, var(--hl) 55%, var(--hl) 94%, transparent 94%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.s.found { background-color: color-mix(in srgb, var(--c-search) 18%, transparent); border-radius: 2px; }
+.ping { animation: ping .5s ease-out; }
+.flash { animation: ping .7s ease-out 3; }
+@keyframes ping {
+  from { outline: 2px solid var(--thread); outline-offset: 5px; }
+  to { outline: 2px solid transparent; outline-offset: 0; }
+}
+
+#web { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
+#web .edge { stroke: var(--thread); stroke-width: 1; opacity: .55; }
+#web .edge.mesh { opacity: .25; }
+#web .edge.search { stroke: var(--c-search); stroke-width: 1.4; opacity: .85; }
+#web .node { stroke: var(--paper); stroke-width: 1; }
+#web #drag { stroke: var(--thread); stroke-width: 1; opacity: .75; stroke-dasharray: 3 3; }
+
+#spider {
+  position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px;
+  z-index: 3; pointer-events: none; color: var(--spider); will-change: transform;
+  filter: drop-shadow(0 1px 1.5px var(--shadow));
+}
+#spider svg { width: 30px; height: 30px; display: block; overflow: visible; }
+#spider .leg { transform-box: view-box; transform-origin: 0 0; }
+#spider.walking .la { animation: legA .16s ease-in-out infinite alternate; }
+#spider.walking .lb { animation: legB .16s ease-in-out infinite alternate; }
+@keyframes legA { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+@keyframes legB { from { transform: rotate(9deg); } to { transform: rotate(-9deg); } }
+
+/* ---------- Panel ---------- */
+.panel {
+  min-width: 0; display: flex; flex-direction: column;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+}
+@media (min-width: 980px) {
+  .panel { position: sticky; top: calc(var(--hdr) + 16px); max-height: calc(100vh - var(--hdr) - 32px); }
+  .panel .grab { display: none; }
+}
+@media (max-width: 979.98px) {
+  .panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    height: 44vh; border-radius: 14px 14px 0 0; border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+    box-shadow: 0 -12px 30px -14px var(--shadow);
+    transition: height .25s ease;
+  }
+  .panel.open { height: 82vh; }
+  .panel:not(.open) .search { display: none; }
+  .top { position: relative; top: auto; padding-block: 8px; }
+  .top-in { gap: 8px; }
+  .actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; }
+  .actions .btn, .actions .sel { flex: none; min-height: 34px; font-size: 13.5px; }
+}
+.grab {
+  display: flex; justify-content: center; width: 100%;
+  padding: 8px 0 2px; border: 0; background: none; cursor: pointer;
+}
+.grab span { width: 42px; height: 4px; border-radius: 4px; background: var(--line); }
+.phead { padding: 12px 16px 8px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; border-bottom: 1px solid var(--line); }
+.found-row { display: flex; align-items: baseline; gap: 8px 10px; }
+.found-word { font: 600 17px/1.1 var(--font-display); }
+.found-name { font-weight: 600; font-size: 14px; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 0; }
+.found-count { font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.found-count b { color: var(--ink); font-size: 15px; }
+.progress { height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--thread); transition: width .2s linear; }
+.prow { display: flex; flex-wrap: wrap; gap: 6px; }
+.search { display: flex; gap: 6px; }
+.search input {
+  flex: 1; min-width: 0; min-height: 34px; padding: 5px 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--desk);
+}
+.tabs { display: flex; gap: 2px; padding: 0 10px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab {
+  border: 0; background: none; padding: 9px 8px 8px; cursor: pointer; white-space: nowrap;
+  font-weight: 500; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tab .mono { font-size: 12px; margin-left: 3px; }
+.pbody { flex: 1; min-height: 0; overflow: auto; padding: 10px 12px 16px; overscroll-behavior: contain; }
+.mode-note { margin: 2px 4px 10px; font-size: 12.5px; color: var(--muted); }
+.mode-note b { color: var(--ink); font-weight: 600; }
+
+.pills { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 8px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  border: 1px solid var(--line); background: var(--paper); border-radius: 999px;
+  padding: 3px 10px; font-size: 12.5px; cursor: pointer;
+}
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.pill .mono { font-size: 11.5px; color: var(--muted); }
+.pill[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.pill[aria-pressed="true"] .mono { color: inherit; }
+
+.facts, .summary { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fact {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; align-items: baseline;
+  width: 100%; text-align: left; cursor: pointer;
+  background: none; border: 0; border-left: 3px solid var(--c);
+  padding: 7px 8px 7px 10px; border-radius: 0 4px 4px 0;
+}
+.fact:hover { background: color-mix(in srgb, var(--c) 9%, transparent); }
+.fact .val { font: 700 14px/1.35 var(--font-mono); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fact .tag { font: 600 10px/1.6 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--c); white-space: nowrap; }
+.fact .ctx {
+  grid-column: 1 / -1; font-size: 13px; line-height: 1.4; color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.fact.sent .ctx { grid-column: 1; grid-row: 1; color: var(--ink); -webkit-line-clamp: 3; }
+.fact.sent .ctx b { color: var(--c); }
+.slot { display: inline-block; width: 16px; height: 3px; border-radius: 2px; background: var(--c); vertical-align: middle; }
+.empty { color: var(--muted); font-size: 13px; padding: 8px 4px; }
+
+.sum-head { font: 600 11px/1.4 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 12px 4px 4px; }
+.sum-head:first-child { margin-top: 0; }
+.sum-item {
+  width: 100%; text-align: left; cursor: pointer; border: 0; background: none;
+  padding: 8px 10px; border-radius: 4px; font: 15px/1.5 var(--font-doc);
+  border-left: 3px solid var(--hl);
+}
+.sum-item:hover { background: color-mix(in srgb, var(--thread) 7%, transparent); }
+
+.search-block { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.search-title { display: flex; align-items: center; gap: 8px; margin: 0 4px 6px; font-size: 13px; }
+.search-title span { flex: 1; min-width: 0; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--paper); border-radius: 4px; cursor: pointer;
+  padding: 4px 9px; font-size: 14px;
+}
+.chip:hover { border-color: var(--thread); }
+.chip .mono { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+/* ---------- Overlays ---------- */
+#toast {
+  position: fixed; z-index: 40; left: 50%; transform: translateX(-50%);
+  top: calc(var(--hdr) + 12px + env(safe-area-inset-top, 0px));
+  max-width: min(520px, calc(100vw - 32px));
+  background: var(--ink); color: var(--paper);
+  padding: 9px 14px; border-radius: 6px; font-size: 14px; box-shadow: 0 10px 30px -10px var(--shadow);
+}
+#toast.err { background: var(--k3); color: #fff; }
+.drop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--desk) 82%, transparent);
+  border: 3px dashed var(--thread);
+  font: 600 18px/1.3 var(--font-display); text-align: center; padding: 24px;
+}
+.modal {
+  position: fixed; inset: 0; z-index: 45; display: grid; place-items: center;
+  background: rgb(0 0 0 / .35);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.modal-card {
+  width: min(680px, 100%); background: var(--paper); border-radius: 8px; border: 1px solid var(--line);
+  padding: 18px; display: grid; gap: 12px; box-shadow: 0 20px 60px -20px var(--shadow);
+}
+.modal-card h2 { margin: 0; font: 600 17px/1.3 var(--font-display); }
+.modal-card textarea {
+  width: 100%; min-height: 40vh; resize: vertical; padding: 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--desk);
+  font: 15px/1.5 var(--font-doc);
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ping, .flash { animation: none; }
+  #spider.walking .la, #spider.walking .lb { animation: none; }
+  .panel { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="spider-shape" viewBox="-16 -16 32 32">
+    <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3,-2 7,-8 12,-10"/><polyline points="2,-2.5 4,-9 6,-14"/>
+      <polyline points="0,-2.5 -2,-9 -5,-13"/><polyline points="-1,-2 -6,-7 -11,-9"/>
+      <polyline points="3,2 7,8 12,10"/><polyline points="2,2.5 4,9 6,14"/>
+      <polyline points="0,2.5 -2,9 -5,13"/><polyline points="-1,2 -6,7 -11,9"/>
+    </g>
+    <ellipse cx="-4.5" cy="0" rx="6" ry="4.6" fill="currentColor"/>
+    <circle cx="3.5" cy="0" r="3.2" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header class="top" id="top">
+  <div class="top-in">
+    <div class="brand"><svg aria-hidden="true"><use href="#spider-shape"/></svg>Паук-конспектор</div>
+    <div class="actions">
+      <label class="btn primary" for="file">Открыть файл</label>
+      <input class="vh" id="file" type="file" accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm,.csv,.log,text/plain,text/html,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      <button class="btn" id="btnPaste" type="button">Вставить текст</button>
+      <label class="vh" for="sample">Пример документа</label>
+      <select class="sel" id="sample">
+        <option value="contract">Пример: договор</option>
+        <option value="report">Пример: отчёт</option>
+        <option value="paper">Пример: статья</option>
+      </select>
+      <label class="vh" for="mode">Режим разбора</label>
+      <select class="sel" id="mode">
+        <option value="auto">Режим: авто</option>
+        <option value="contract">Договор</option>
+        <option value="report">Отчёт</option>
+        <option value="paper">Статья</option>
+        <option value="general">Общий</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <article class="sheet" id="sheet">
+    <div class="doc-head">
+      <h1 class="doc-title" id="docTitle">Документ</h1>
+      <div class="doc-meta" id="docMeta"></div>
+      <div class="sample-note" id="sampleNote" hidden>
+        <span><b>Это пример.</b> Откройте свой PDF, DOCX или TXT, вставьте текст или перетащите файл на страницу.</span>
+      </div>
+    </div>
+    <div class="doc" id="doc"></div>
+    <p class="sheet-foot">Текст разбирается прямо в браузере, файл никуда не отправляется. Конспект собран из предложений самого документа: паук ничего не пересказывает и не придумывает.</p>
+    <svg id="web" aria-hidden="true"><line id="drag" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/></svg>
+    <div id="spider" hidden aria-hidden="true">
+      <svg viewBox="-16 -16 32 32">
+        <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline class="leg la" points="3,-2 7,-8 12,-10"/><polyline class="leg lb" points="2,-2.5 4,-9 6,-14"/>
+          <polyline class="leg la" points="0,-2.5 -2,-9 -5,-13"/><polyline class="leg lb" points="-1,-2 -6,-7 -11,-9"/>
+          <polyline class="leg lb" points="3,2 7,8 12,10"/><polyline class="leg la" points="2,2.5 4,9 6,14"/>
+          <polyline class="leg lb" points="0,2.5 -2,9 -5,13"/><polyline class="leg la" points="-1,2 -6,7 -11,9"/>
+        </g>
+        <ellipse cx="-4.5" cy="0" rx="6" ry="4.6" fill="currentColor"/>
+        <circle cx="3.5" cy="0" r="3.2" fill="currentColor"/>
+        <circle cx="5.2" cy="-1.2" r=".8" fill="var(--paper)"/><circle cx="5.2" cy="1.2" r=".8" fill="var(--paper)"/>
+      </svg>
+    </div>
+  </article>
+
+  <aside class="panel" id="panel" aria-label="Что нашёл паук">
+    <button class="grab" id="grab" type="button" aria-expanded="false" aria-label="Развернуть панель"><span></span></button>
+    <div class="phead">
+      <div class="found-row">
+        <span class="found-word">Найдено</span>
+        <span class="found-name" id="foundName"></span>
+        <span class="found-count mono"><b id="nFound">0</b> <span id="nOf"></span></span>
+      </div>
+      <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+      <div class="prow">
+        <button class="btn small" id="btnRun" type="button">Пустить паука</button>
+        <button class="btn small" id="btnSkip" type="button">Показать всё</button>
+        <button class="btn small" id="btnCopy" type="button">Копировать</button>
+      </div>
+      <form class="search" id="searchForm">
+        <label class="vh" for="q">Поиск по документу</label>
+        <input id="q" type="search" placeholder="Найти: штраф, срок, выручка…" autocomplete="off">
+        <button class="btn small" type="submit">Найти</button>
+      </form>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-facts" aria-selected="true" aria-controls="pane-facts" type="button">Факты<span class="mono" id="cFacts"></span></button>
+      <button class="tab" role="tab" id="tab-sum" aria-selected="false" aria-controls="pane-sum" type="button">Конспект<span class="mono" id="cSum"></span></button>
+      <button class="tab" role="tab" id="tab-words" aria-selected="false" aria-controls="pane-words" type="button">Слова<span class="mono" id="cWords"></span></button>
+    </div>
+    <div class="pbody" id="pbody">
+      <div id="pane-facts" role="tabpanel" aria-labelledby="tab-facts">
+        <div id="searchBlock" class="search-block" hidden></div>
+        <div class="pills" id="pills"></div>
+        <ol class="facts" id="factList"></ol>
+      </div>
+      <div id="pane-sum" role="tabpanel" aria-labelledby="tab-sum" hidden>
+        <p class="mode-note" id="modeNote"></p>
+        <div id="sumList"></div>
+      </div>
+      <div id="pane-words" role="tabpanel" aria-labelledby="tab-words" hidden>
+        <p class="mode-note">Слова, которые чаще всего встречаются в документе. Нажмите, чтобы найти их в тексте.</p>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="modal" id="pasteBox" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pasteTitle">
+    <h2 id="pasteTitle">Вставьте текст</h2>
+    <label class="vh" for="pasteText">Текст документа</label>
+    <textarea id="pasteText" placeholder="Договор, статья, отчёт, лекция — любой длинный текст"></textarea>
+    <div class="modal-actions">
+      <button class="btn" id="pasteCancel" type="button">Отмена</button>
+      <button class="btn primary" id="pasteGo" type="button">Разобрать</button>
+    </div>
+  </div>
+</div>
+<div class="drop" id="drop" hidden>Отпустите файл — паук его прочитает</div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+'use strict';
+document.documentElement.lang = 'ru';
+
+/* =========================================================
+   1. Small helpers
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isNarrow = () => matchMedia('(max-width: 979.98px)').matches;
+const fmt = n => n.toLocaleString('ru-RU');
+class UserError extends Error {}
+
+const LIBS = {
+  pdf: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+  pdfWorker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+  docx: 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js',
+};
+const scriptCache = new Map();
+function loadScript(src) {
+  if (!scriptCache.has(src)) {
+    scriptCache.set(src, new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = resolve;
+      s.onerror = () => { scriptCache.delete(src); reject(new UserError('Не удалось загрузить модуль чтения файла. Для первого открытия PDF и DOCX нужен интернет; TXT и вставка текста работают без него.')); };
+      document.head.appendChild(s);
+    }));
+  }
+  return scriptCache.get(src);
+}
+
+let toastTimer = 0;
+function toast(msg, isErr = false, ms = 3800) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.toggle('err', isErr); t.hidden = false;
+  clearTimeout(toastTimer);
+  if (ms) toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+/* =========================================================
+   2. Patterns: values (money, %, dates, terms) and modes
+   ========================================================= */
+const NUM = '(?:\\d{1,3}(?:[ \\u00a0\\u202f]\\d{3})+(?:[.,]\\d+)?|\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?|\\d+(?:[.,]\\d+)?)';
+const NB = '(?<![\\p{L}\\p{N}])';
+const NE = '(?![\\p{L}\\p{N}])';
+const SCALE = '(?:\\s?(?:трлн|млрд|млн|тыс)\\.?|\\s(?:thousand|million|billion|trillion)|[KMBT](?![\\p{L}]))';
+const MONTH_RU = '(?:январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр)\\p{L}*';
+const MONTH_EN = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.?';
+
+const VALUE_CATS = [
+  { key: 'money', label: 'Суммы', color: 'var(--c1)', re: [
+    NB + '(?:US\\$|[$€£₽]|(?:USD|EUR|RUB)\\s?)' + NUM + SCALE + '?',
+    NB + NUM + SCALE + '?\\s?(?:\\([^)]{1,80}\\)\\s?)?(?:руб(?:л(?:ей|я|ь))?\\.?|₽|долл(?:ар(?:ов|а|ы)?|\\.)|USD|EUR|RUB|евро|€|\\$|dollars?)' + NE,
+  ] },
+  { key: 'pct', label: 'Проценты', color: 'var(--c2)', re: [
+    NB + NUM + '(?:\\s?[–—-]\\s?' + NUM + ')?\\s?(?:%|процент(?:ов|а)?' + NE + '|percent|per cent)',
+  ] },
+  { key: 'date', label: 'Даты', color: 'var(--c3)', re: [
+    NB + '\\d{1,2}[./]\\d{1,2}[./](?:\\d{4}|\\d{2})' + NE,
+    NB + '\\d{4}-\\d{2}-\\d{2}' + NE,
+    '«?' + NB + '\\d{1,2}»?\\s' + MONTH_RU + '(?:\\s\\d{4}(?:\\s?(?:г\\.|года?))?)?',
+    NB + MONTH_EN + '\\s\\d{1,2},?\\s\\d{4}' + NE,
+    NB + '\\d{1,2}\\s' + MONTH_EN + '\\s\\d{4}' + NE,
+    NB + '(?:в\\s)?' + MONTH_RU + '\\s(?:19|20)\\d{2}' + NE,
+    NB + '(?:19|20)\\d{2}\\s?(?:гг?\\.|год(?:а|у|ом)?' + NE + ')',
+    NB + '(?:FY\\s?\\d{2,4}|fiscal(?:\\syear)?\\s(?:19|20)\\d{2})' + NE,
+  ] },
+  { key: 'term', label: 'Сроки', color: 'var(--c4)', re: [
+    '(?:(?:в\\s(?:течение|срок(?:\\sне\\sболее)?)|не\\s(?:позднее|позже|ранее|более|менее)|за|через|within|no later than)\\s)?' + NB +
+    '\\d{1,3}(?!\\d)(?:\\s?\\([^)]{1,40}\\))?\\s(?:(?:рабоч|календарн|банковск|business|calendar|working)\\p{L}*\\s)?' +
+    '(?:дн(?:ей|я)|день|сут(?:ок|ки)|недел\\p{L}*|месяц\\p{L}*|мес\\.|лет|год(?:а|ов)?|час(?:а|ов)?|минут[аы]?|days?|weeks?|months?|years?|hours?|minutes?)' + NE,
+  ] },
+];
+VALUE_CATS.forEach(c => { c.rx = new RegExp(c.re.join('|'), 'giu'); c.kind = 'value'; });
+
+const MODES = {
+  contract: { label: 'Договор', cats: [
+    ['duty', 'Обязанности', ['обязан', 'обязу', 'должен', 'должна', 'должны', 'shall', 'must', 'agrees? to']],
+    ['right', 'Права', ['вправе', 'име[ею]т\\sправо', 'is entitled', 'has the right', 'have the right']],
+    ['liab', 'Ответственность', ['штраф', 'неустойк', 'пени(?![\\p{L}])', 'пеня', 'ответственност', 'убытк', 'возмещ', 'penalt', 'liab', 'damages', 'indemn']],
+    ['pay', 'Оплата', ['оплат', 'плат[её]ж', 'стоимост', 'вознагражд', 'аванс', 'payment', 'invoice', 'fees?(?![\\p{L}])']],
+    ['end', 'Расторжение', ['растор', 'односторонн', 'прекращени[ея]\\sдоговор', 'terminat']],
+    ['conf', 'Конфиденциальность', ['конфиденц', 'коммерческ\\p{L}*\\sтайн', 'confidential', 'non-disclosure']],
+  ] },
+  report: { label: 'Отчёт', cats: [
+    ['rev', 'Выручка', ['выручк', 'доход', 'оборот', 'net sales', 'revenue']],
+    ['profit', 'Прибыль', ['прибыл', 'убыт', 'рентабельн', 'маржин', 'ebitda', 'net income', 'operating income', 'margin']],
+    ['debt', 'Долг', ['долг', 'кредит', 'займ', 'заём', 'облигац', 'лизинг', 'debt', 'borrowing', 'notes due', 'loan']],
+    ['risk', 'Риски', ['риск', 'неопредел', 'санкци', 'угроз', 'risk', 'uncertain', 'advers']],
+    ['shares', 'Акции', ['акци(?!з)', 'акционер', 'дивиденд', 'выкуп', 'капитализац', 'shares', 'shareholder', 'dividend', 'repurchase', 'buyback', 'market value']],
+    ['plan', 'Прогноз', ['ожида', 'прогноз', 'планиру', 'намерен', 'стратеги', 'expect', 'anticipat', 'outlook', 'guidance', 'intend', 'plan to']],
+  ] },
+  paper: { label: 'Статья', cats: [
+    ['aim', 'Цель', ['цел(?:ь|и|ью)(?![\\p{L}])', 'задач', 'гипотез', 'мы предлагаем', 'в (?:данной|этой) работе', 'aim', 'objective', 'hypothes', 'we propose', 'this (?:paper|study)']],
+    ['method', 'Метод', ['метод', 'выборк', 'эксперимент', 'респондент', 'участник', 'измер', 'method', 'sample', 'dataset', 'participants', 'experiment', 'we used', 'measured']],
+    ['result', 'Результаты', ['результат', 'показал', 'выявл', 'обнаруж', 'значим', 'улучш', 'result', 'found', 'show(?:s|ed)', 'significant', 'improv']],
+    ['concl', 'Выводы', ['вывод', 'заключени', 'таким образом', 'следовательно', 'conclu', 'in summary', 'therefore', 'overall']],
+    ['limit', 'Ограничения', ['ограничени', 'недостат', 'дальнейш\\p{L}*\\sисследован', 'limitation', 'future work', 'further research']],
+  ] },
+  general: { label: 'Общий', cats: [] },
+};
+for (const m of Object.values(MODES)) {
+  m.cats = m.cats.map(([key, label, words], i) => ({
+    key, label, kind: 'sent', color: `var(--k${i + 1})`,
+    rx: new RegExp('(?<![\\p{L}])(?:' + words.join('|') + ')[\\p{L}-]*', 'giu'),
+  }));
+}
+const KEY_CAT = { key: 'key', label: 'Главное', color: 'var(--thread)', kind: 'key' };
+const SEARCH_CAT = { key: 'search', label: 'Поиск', color: 'var(--c-search)', kind: 'search' };
+
+const STOP = new Set(('и в во не что он на я с со как а то все всё она так его но да ты к у же вы за бы по только ее её мне было вот от меня еще ещё нет о из ему теперь когда даже ну вдруг ли если уже или ни быть был него до вас нибудь опять уж вам ведь там потом себя ничего ей может они тут где есть надо ней для мы тебя их чем была сам чтоб без будто чего раз тоже себе под будет ж тогда кто этот того потому этого какой совсем ним здесь этом один почти мой тем чтобы нее неё сейчас были куда зачем всех никогда можно при наконец два об другой хоть после над больше тот через эти нас про всего них какая много разве три эту моя впрочем хорошо свою этой перед иногда лучше чуть том нельзя такой им более всегда конечно всю между это также который которые которая которое которого котором которых которой является являются данный данной данного этих свой своих своей своего либо каждый каждую каждой такие такое такая очень если весь вся случае менее ранее один одна одно где-то '
+  + 'the and of to in a is that for on with as by at an be this are was were from or it its which has have had not but will may can our we their they than other such these those also any all into more been would could should each per if so no only out over about under up such them there his her who what when where how than then').split(/\s+/));
+
+/* =========================================================
+   3. Text → blocks → sentences
+   ========================================================= */
+function normalize(text) {
+  return text.replace(/\r\n?/g, '\n').replace(/\t/g, ' ').replace(/\u00ad/g, '').replace(/\uFEFF/g, '')
+    .replace(/[ \u00a0]{2,}/g, ' ').replace(/\*\*|__|`/g, '');
+}
+
+function isHeading(p) {
+  if (p.length > 100) return false;
+  if (/[.,;:!?]$/.test(p)) return false;
+  const words = p.split(/\s+/).length;
+  if (/^(?:\d+(?:\.\d+)*\.?|[IVXLC]+\.|Статья\s+\d+|Глава\s|Раздел\s|Часть\s|Item\s+\d|Part\s+[IVX]+|§)\s*\S/i.test(p) && words <= 12) return true;
+  const letters = p.replace(/[^\p{L}]/gu, '');
+  if (letters.length >= 4 && letters === letters.toUpperCase() && /\p{Lu}/u.test(letters)) return true;
+  return words <= 10 && /^\p{Lu}/u.test(p);
+}
+
+function toBlocks(text) {
+  const blocks = [];
+  for (const chunk of normalize(text).split(/\n\s*\n/)) {
+    const lines = chunk.split('\n').map(l => l.trim()).filter(Boolean);
+    let cur = '';
+    const push = () => { if (cur) blocks.push(cur); cur = ''; };
+    for (const line of lines) {
+      if (/^#{1,6}\s/.test(line)) { push(); blocks.push({ md: line.replace(/^#+\s*/, '') }); continue; }
+      const listItem = /^(?:[-–—•*]\s|\d+[.)]\s)/.test(line);
+      if (!cur) { cur = line; continue; }
+      const join = !listItem && !/[.:;!?»"]$/.test(cur) && /^[\p{Ll}(«"\d]/u.test(line);
+      if (join) cur = /\p{L}-$/u.test(cur) && /^\p{Ll}/u.test(line) ? cur.slice(0, -1) + line : cur + ' ' + line;
+      else { push(); cur = line; }
+    }
+    push();
+  }
+  return blocks.map(b => typeof b === 'object'
+    ? { type: 'h', text: b.md }
+    : { type: isHeading(b) ? 'h' : 'p', text: b });
+}
+
+const ABBR = new Set(['т', 'г', 'гг', 'руб', 'коп', 'ст', 'п', 'пп', 'ч', 'см', 'рис', 'табл', 'им', 'др', 'пр', 'тыс', 'млн', 'млрд', 'трлн',
+  'ул', 'д', 'кв', 'обл', 'р', 'стр', 'с', 'англ', 'лат', 'т.е', 'т.д', 'т.п', 'т.к', 'и.о', 'inc', 'ltd', 'co', 'corp', 'mr', 'mrs', 'ms', 'dr',
+  'no', 'vs', 'etc', 'e.g', 'i.e', 'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec', 'u.s', 'fig', 'al', 'чел', 'мес', 'долл']);
+
+function splitSentences(t) {
+  const out = [];
+  const re = /[.!?…]+["»”)\]]*(?=\s+["«“(\[]?[\p{Lu}\d])/gu;
+  let start = 0, m;
+  while ((m = re.exec(t))) {
+    const end = m.index + m[0].length;
+    if (m[0][0] === '.') {
+      const raw = (t.slice(start, m.index).match(/([\p{L}.]+)$/u) || [])[1] || '';
+      if ((raw.length === 1 && /\p{Lu}/u.test(raw)) || ABBR.has(raw.toLowerCase())) continue; // initials, abbreviations
+      if (/^[\s\d.)]+$/.test(t.slice(start, end))) continue; // "1.1." numbering
+    }
+    out.push([start, end]);
+    start = end;
+    while (start < t.length && /\s/.test(t[start])) start++;
+  }
+  if (start < t.length) out.push([start, t.length]);
+  return out;
+}
+
+/* =========================================================
+   4. Analysis: values, categories, key sentences, keywords
+   ========================================================= */
+const words = t => (t.toLowerCase().replace(/ё/g, 'е').match(/\p{L}+/gu) || []);
+const stem = w => (w.length > 5 ? w.slice(0, 5) : w);
+const contentStems = t => words(t).filter(w => w.length >= 3 && !STOP.has(w)).map(stem);
+
+function detectMode(sents) {
+  let best = 'general', bestScore = 0;
+  for (const [key, m] of Object.entries(MODES)) {
+    if (!m.cats.length) continue;
+    let hit = 0;
+    for (const s of sents) if (m.cats.some(c => { c.rx.lastIndex = 0; return c.rx.test(s.text); })) hit++;
+    const score = hit / Math.max(1, sents.length);
+    if (score > bestScore) { best = key; bestScore = score; }
+  }
+  return bestScore >= 0.12 ? best : 'general';
+}
+
+function rankSentences(sents) {
+  const cand = sents.filter(s => !s.head && s.stems.size >= 4);
+  const n = cand.length;
+  if (!n) return [];
+  const df = new Map();
+  cand.forEach(s => s.stems.forEach(w => df.set(w, (df.get(w) || 0) + 1)));
+  let score;
+  if (n <= 1500) {
+    // TextRank: sentences that share words with many other sentences are central.
+    const idx = new Map();
+    cand.forEach((s, i) => s.stems.forEach(w => { if (!idx.has(w)) idx.set(w, []); idx.get(w).push(i); }));
+    const W = Array.from({ length: n }, () => new Map());
+    const maxDf = Math.max(3, Math.min(150, n * 0.3));
+    for (const list of idx.values()) {
+      if (list.length < 2 || list.length > maxDf) continue;
+      for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) {
+        const i = list[a], j = list[b];
+        W[i].set(j, (W[i].get(j) || 0) + 1);
+        W[j].set(i, (W[j].get(i) || 0) + 1);
+      }
+    }
+    const len = cand.map(s => Math.log(s.stems.size + 1));
+    W.forEach((row, i) => row.forEach((c, j) => row.set(j, c / (len[i] + len[j]))));
+    const out = W.map(row => { let s = 0; row.forEach(v => { s += v; }); return s || 1; });
+    score = new Array(n).fill(1);
+    for (let it = 0; it < 30; it++) {
+      const next = new Array(n).fill(0.15);
+      W.forEach((row, j) => row.forEach((w, i) => { next[i] += 0.85 * w / out[j] * score[j]; }));
+      score = next;
+    }
+  } else {
+    // Very long texts: score by rare-but-repeated words (faster).
+    score = cand.map(s => { let v = 0; s.stems.forEach(w => { const d = df.get(w); if (d >= 2) v += Math.log(n / d); }); return v / Math.sqrt(s.stems.size); });
+  }
+  cand.forEach((s, i) => {
+    let k = score[i];
+    if (s.i < 3) k *= 1.15;
+    if (s.hasValue) k *= 1.1;
+    if (s.stems.size > 45) k *= 0.8;
+    s.rank = k;
+  });
+  const want = n <= 8 ? Math.min(n, 3) : Math.max(4, Math.min(15, Math.round(n * 0.08)));
+  const picked = [];
+  for (const s of [...cand].sort((a, b) => b.rank - a.rank)) {
+    if (picked.length >= want) break;
+    const dup = picked.some(p => { let c = 0; s.stems.forEach(w => { if (p.stems.has(w)) c++; }); return c / Math.min(s.stems.size, p.stems.size) > 0.7; });
+    if (!dup) picked.push(s);
+  }
+  return picked.sort((a, b) => a.i - b.i);
+}
+
+function keywords(sents) {
+  const count = new Map(), forms = new Map();
+  for (const s of sents) for (const w of words(s.text)) {
+    if (w.length < 4 || STOP.has(w)) continue;
+    const st = stem(w);
+    count.set(st, (count.get(st) || 0) + 1);
+    if (!forms.has(st)) forms.set(st, new Map());
+    const f = forms.get(st); f.set(w, (f.get(w) || 0) + 1);
+  }
+  return [...count.entries()].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, 24)
+    .map(([st, c]) => ({ word: [...forms.get(st).entries()].sort((a, b) => b[1] - a[1])[0][0], count: c }));
+}
+
+function findAll(rx, text) {
+  const out = [];
+  rx.lastIndex = 0;
+  let m;
+  while ((m = rx.exec(text))) {
+    if (!m[0]) { rx.lastIndex++; continue; }
+    out.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
+  }
+  return out;
+}
+
+function analyze(text, modePref) {
+  const blocks = toBlocks(text);
+  const sents = [];
+  blocks.forEach((b, bi) => {
+    b.s = [];
+    const ranges = b.type === 'h' ? [[0, b.text.length]] : splitSentences(b.text);
+    for (const [a, z] of ranges) {
+      const t = b.text.slice(a, z).trim();
+      if (!t) continue;
+      const s = { i: sents.length, b: bi, text: t, head: b.type === 'h', marks: [], cats: new Set() };
+      s.stems = new Set(contentStems(t));
+      sents.push(s); b.s.push(s.i);
+    }
+  });
+
+  const auto = modePref === 'auto';
+  const mode = auto ? detectMode(sents) : modePref;
+  const catList = [...VALUE_CATS, ...MODES[mode].cats];
+  const facts = [];
+  const overlaps = (s, a, z) => s.marks.some(m => a < m.end && z > m.start);
+
+  for (const s of sents) {
+    // values: money first, then %, dates, terms; earlier categories win overlaps
+    for (const c of VALUE_CATS) {
+      for (const m of findAll(c.rx, s.text)) {
+        if (overlaps(s, m.start, m.end)) continue;
+        const f = { kind: 'value', cat: c, s: s.i, pos: m.start, value: m.text.trim(), ctx: contextAround(s.text, m.start, m.end) };
+        s.marks.push({ start: m.start, end: m.end, cls: 'v', f });
+        facts.push(f); s.hasValue = true;
+      }
+    }
+    // sentence categories (trigger word is outlined)
+    if (!s.head) {
+      let used = 0;
+      for (const c of MODES[mode].cats) {
+        if (used >= 2) break;
+        const hit = findAll(c.rx, s.text).find(m => !overlaps(s, m.start, m.end));
+        if (!hit) continue;
+        const f = { kind: 'sent', cat: c, s: s.i, pos: hit.start, trig: [hit.start, hit.end] };
+        s.marks.push({ start: hit.start, end: hit.end, cls: 't', f });
+        facts.push(f); s.cats.add(c.key); used++;
+      }
+    }
+    s.marks.sort((a, b) => a.start - b.start);
+  }
+
+  const key = rankSentences(sents);
+  key.forEach(s => { s.key = true; facts.push({ kind: 'key', cat: KEY_CAT, s: s.i, pos: -1 }); });
+  facts.sort((a, b) => a.s - b.s || a.pos - b.pos);
+  facts.forEach((f, i) => { f.id = i; });
+
+  const counts = new Map();
+  facts.forEach(f => counts.set(f.cat.key, (counts.get(f.cat.key) || 0) + 1));
+  const wordCount = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
+  return { blocks, sents, facts, key, mode, auto, catList, counts, keywords: keywords(sents), wordCount };
+}
+
+function contextAround(text, a, z) {
+  const L = text.slice(0, a).trim().split(/\s+/).filter(Boolean);
+  const R = text.slice(z).trim().split(/\s+/).filter(Boolean);
+  return { l: (L.length > 7 ? '…' : '') + L.slice(-7).join(' '), r: R.slice(0, 4).join(' ') + (R.length > 4 ? '…' : '') };
+}
+
+/* =========================================================
+   5. Rendering the document
+   ========================================================= */
+const sheet = $('#sheet'), docEl = $('#doc'), web = $('#web'), drag = $('#drag'), spiderEl = $('#spider');
+let A = null;                 // current analysis
+let docName = '';
+let sentEls = [];
+
+function sentenceHtml(s) {
+  let out = '', p = 0;
+  for (const m of s.marks) {
+    out += esc(s.text.slice(p, m.start));
+    out += `<mark class="${m.cls}" data-f="${m.f.id}" data-cat="${m.f.cat.key}" style="--c:${m.f.cat.color}">${esc(s.text.slice(m.start, m.end))}</mark>`;
+    p = m.end;
+  }
+  out += esc(s.text.slice(p));
+  return `<span class="s${s.key ? ' key' : ''}" data-s="${s.i}">${out}</span>`;
+}
+
+function renderDoc() {
+  docEl.innerHTML = A.blocks.map(b => {
+    if (!b.s.length) return '';
+    const inner = b.s.map(i => sentenceHtml(A.sents[i])).join(' ');
+    return b.type === 'h' ? `<h3>${inner}</h3>` : `<p>${inner}</p>`;
+  }).join('');
+  sentEls = [];
+  docEl.querySelectorAll('.s').forEach(el => { sentEls[+el.dataset.s] = el; });
+  const marks = new Map();
+  docEl.querySelectorAll('mark[data-f]').forEach(el => marks.set(+el.dataset.f, el));
+  A.facts.forEach(f => { f.el = f.kind === 'key' ? sentEls[f.s] : marks.get(f.id); });
+  layoutEpoch++;
+
+  $('#docTitle').textContent = docName;
+  const mins = Math.max(1, Math.round(A.wordCount / 180));
+  $('#docMeta').textContent = `${fmt(A.blocks.length)} абз. · ${fmt(A.sents.length)} предл. · ${fmt(A.wordCount)} слов · ~${mins} мин чтения`;
+  sizeWeb();
+}
+
+/* =========================================================
+   6. The web (SVG overlay) and the spider
+   ========================================================= */
+const SVGNS = 'http://www.w3.org/2000/svg';
+let edges = [], nodes = [];
+let spPos = { x: 28, y: 28 }, spAng = 0;
+let lastVisited = null;
+let layoutEpoch = 0; // bumps whenever text may have moved; anchors are cached per epoch
+
+function sizeWeb() {
+  web.setAttribute('width', sheet.clientWidth);
+  web.setAttribute('height', sheet.scrollHeight);
+}
+
+function anchor(f) {
+  if (f._ep === layoutEpoch) return f._pt;
+  const el = f.el;
+  if (!el) return { x: 0, y: 0 };
+  const r = el.getClientRects()[0] || el.getBoundingClientRect();
+  const sr = sheet.getBoundingClientRect();
+  const whole = f.kind === 'key' || f.kind === 'search';
+  f._ep = layoutEpoch;
+  f._pt = { x: r.left - sr.left + (whole ? 4 : r.width / 2), y: r.bottom - sr.top + 1.5 };
+  return f._pt;
+}
+
+function setLine(ln, a, b) {
+  ln.setAttribute('x1', a.x.toFixed(1)); ln.setAttribute('y1', a.y.toFixed(1));
+  ln.setAttribute('x2', b.x.toFixed(1)); ln.setAttribute('y2', b.y.toFixed(1));
+}
+
+function addEdge(a, b, cls, animate) {
+  const p = anchor(a), q = anchor(b);
+  if (Math.abs(p.y - q.y) < 6) return; // same text line: a thread here would cross out words
+  const ln = document.createElementNS(SVGNS, 'line');
+  ln.setAttribute('class', 'edge ' + cls);
+  setLine(ln, p, q);
+  web.insertBefore(ln, drag);
+  if (animate) {
+    const L = Math.hypot(q.x - p.x, q.y - p.y);
+    ln.style.strokeDasharray = L; ln.style.strokeDashoffset = L;
+    ln.getBoundingClientRect();
+    ln.style.transition = 'stroke-dashoffset .35s ease-out';
+    ln.style.strokeDashoffset = 0;
+    ln.addEventListener('transitionend', () => { ln.style.cssText = ''; }, { once: true });
+  }
+  edges.push({ a, b, cls, el: ln });
+}
+
+function addNode(f) {
+  const c = document.createElementNS(SVGNS, 'circle');
+  c.setAttribute('class', 'node' + (f.kind === 'search' ? ' search' : ''));
+  c.setAttribute('r', f.kind === 'key' ? 3.5 : 2.6);
+  c.style.fill = f.cat.color;
+  const p = anchor(f);
+  c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1));
+  web.appendChild(c);
+  nodes.push({ f, el: c });
+}
+
+function clearWeb(onlySearch = false) {
+  edges = edges.filter(e => { const kill = !onlySearch || e.cls === 'search'; if (kill) e.el.remove(); return !kill; });
+  nodes = nodes.filter(n => { const kill = !onlySearch || n.f.kind === 'search'; if (kill) n.el.remove(); return !kill; });
+}
+
+function redrawWeb() {
+  layoutEpoch++;
+  sizeWeb();
+  edges.forEach(e => setLine(e.el, anchor(e.a), anchor(e.b)));
+  nodes.forEach(n => { const p = anchor(n.f); n.el.setAttribute('cx', p.x.toFixed(1)); n.el.setAttribute('cy', p.y.toFixed(1)); });
+  if (lastVisited) { spPos = anchor(lastVisited); drawSpider(); }
+}
+
+function drawSpider() {
+  spiderEl.style.transform = `translate(${spPos.x.toFixed(1)}px, ${spPos.y.toFixed(1)}px) rotate(${spAng.toFixed(3)}rad)`;
+}
+
+let lastUserScroll = 0;
+['wheel', 'touchmove', 'keydown'].forEach(ev => addEventListener(ev, () => { lastUserScroll = Date.now(); }, { passive: true }));
+
+function freeArea() {
+  const top = Math.max(0, $('#top').getBoundingClientRect().bottom);
+  const bottom = isNarrow() ? $('#panel').getBoundingClientRect().top : innerHeight;
+  return { top, bottom };
+}
+
+function followSpider() {
+  if (Date.now() - lastUserScroll < 2500) return;
+  const y = sheet.getBoundingClientRect().top + spPos.y;
+  const fa = freeArea();
+  const diff = y - (fa.top + (fa.bottom - fa.top) * 0.45);
+  if (Math.abs(diff) > 30) window.scrollBy(0, diff * 0.1);
+}
+
+function moveSpider(to, dur, token, from, done) {
+  const start = { ...spPos }, t0 = performance.now();
+  const dx = to.x - start.x, dy = to.y - start.y;
+  if (Math.hypot(dx, dy) > 3) spAng = Math.atan2(dy, dx);
+  spiderEl.hidden = false;
+  spiderEl.classList.add('walking');
+  const fromPt = from ? anchor(from) : null;
+  const frame = now => {
+    if (token !== tour.token) return;
+    const p = Math.min(1, (now - t0) / dur);
+    const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    spPos = { x: start.x + dx * e, y: start.y + dy * e };
+    drawSpider();
+    if (fromPt) { setLine(drag, fromPt, spPos); drag.setAttribute('visibility', 'visible'); }
+    if (tour.active) followSpider();
+    if (p < 1) requestAnimationFrame(frame);
+    else { drag.setAttribute('visibility', 'hidden'); done && done(); }
+  };
+  requestAnimationFrame(frame);
+}
+
+/* A tour walks the spider through a list of facts, one by one. */
+const tour = { token: 0, list: [], k: 0, active: false, opts: null, prev: null, pending: null };
+
+function startTour(list, opts) {
+  finishTour();
+  Object.assign(tour, { list, k: 0, opts, prev: opts.prev || null, active: true, pending: null });
+  const token = ++tour.token;
+  updateButtons();
+  if (opts.instant || reduceMotion || !list.length) { completeTour(); return; }
+  const batch = Math.max(1, Math.ceil(list.length / 450));
+  const step = Math.max(30, Math.min(opts.maxStep || 260, (opts.total || 14000) / Math.ceil(list.length / batch)));
+  const next = () => {
+    if (token !== tour.token) return;
+    if (tour.k >= tour.list.length) { endTour(); return; }
+    const group = tour.list.slice(tour.k, tour.k + batch);
+    tour.k += group.length;
+    tour.pending = group;
+    const target = group[group.length - 1];
+    moveSpider(anchor(target), step * 0.78, token, tour.prev, () => {
+      tour.pending = null;
+      group.forEach(f => visit(f, true));
+      setTimeout(next, step * 0.22);
+    });
+  };
+  next();
+}
+
+function visit(f, animate) {
+  tour.opts.onVisit(f, animate, tour.prev);
+  tour.prev = f;
+  lastVisited = f;
+}
+
+function completeTour() {
+  if (!tour.active) return;
+  ++tour.token;
+  const rest = [...(tour.pending || []), ...tour.list.slice(tour.k)];
+  tour.pending = null; tour.k = tour.list.length;
+  rest.forEach(anchor);              // read all positions first: one layout instead of thousands
+  rest.forEach(f => visit(f, false));
+  tour.opts.flush && tour.opts.flush();
+  endTour();
+  if (lastVisited) { spPos = anchor(lastVisited); drawSpider(); spiderEl.hidden = false; }
+}
+
+function endTour() {
+  tour.active = false;
+  spiderEl.classList.remove('walking');
+  drag.setAttribute('visibility', 'hidden');
+  tour.opts && tour.opts.onEnd && tour.opts.onEnd();
+  updateButtons();
+}
+
+function finishTour() { if (tour.active) completeTour(); }
+
+/* =========================================================
+   7. Main run: spider reads the whole document
+   ========================================================= */
+let visited = [];
+let rowBuf = [];
+let filter = null;
+
+function resetLit() {
+  docEl.querySelectorAll('.lit').forEach(el => el.classList.remove('lit', 'ping'));
+}
+
+function runMain(instant = false) {
+  clearSearch();
+  clearWeb(); resetLit(); visited = []; rowBuf = [];
+  $('#factList').innerHTML = '';
+  setCounters(0);
+  spPos = { x: 28, y: 28 }; spAng = 0.6; drawSpider();
+  startTour(A.facts, {
+    instant,
+    onVisit: (f, animate, prev) => {
+      if (f.el) { f.el.classList.add('lit'); if (animate) { f.el.classList.remove('ping'); void f.el.offsetWidth; f.el.classList.add('ping'); } }
+      if (prev) addEdge(prev, f, 'drag', animate);
+      // extra strand to the nearest of the last few points, so it looks like a web
+      const p = anchor(f);
+      let best = null, bestD = 230;
+      for (const g of visited.slice(-8, -1)) {
+        const q = anchor(g); const d = Math.hypot(q.x - p.x, q.y - p.y);
+        if (d > 12 && d < bestD) { best = g; bestD = d; }
+      }
+      if (best) addEdge(best, f, 'mesh', animate);
+      addNode(f);
+      visited.push(f);
+      if (f.kind !== 'key') { if (animate) appendFactRow(f); else rowBuf.push(factRowHtml(f)); }
+      if (animate) setCounters(visited.length, f.s);
+      if (animate && !$('#pane-facts').hidden) { const pb = $('#pbody'); pb.scrollTop = pb.scrollHeight; }
+    },
+    flush: () => { $('#factList').insertAdjacentHTML('beforeend', rowBuf.join('')); rowBuf = []; },
+    onEnd: () => {
+      setCounters(visited.length, A.sents.length - 1);
+      if (!$('#factList').children.length) $('#factList').innerHTML = '<li class="empty">Сумм, дат и сроков здесь нет. Загляните во вкладку «Конспект» или поищите слово.</li>';
+      $('#pbody').scrollTop = 0;
+    },
+  });
+}
+
+function setCounters(found, sentIdx = -1) {
+  $('#nFound').textContent = fmt(found);
+  const seen = sentIdx + 1;
+  const n = A.sents.length;
+  $('#nOf').textContent = `в ${fmt(n)} ${plural(n, 'предложении', 'предложениях', 'предложениях')}`;
+  $('#prog').style.width = (A.sents.length ? (seen / A.sents.length) * 100 : 0) + '%';
+}
+
+function updateButtons() {
+  $('#btnSkip').disabled = !tour.active;
+  $('#btnRun').textContent = tour.active ? 'Паук читает…' : 'Пустить ещё раз';
+  $('#btnRun').disabled = tour.active;
+}
+
+/* =========================================================
+   8. Panel: facts list, filters, summary, keywords
+   ========================================================= */
+function factRowHtml(f) {
+  const c = f.cat;
+  const hidden = filter && filter !== c.key ? ' hidden' : '';
+  if (f.kind === 'value') {
+    return `<li data-cat="${c.key}"${hidden}><button class="fact" type="button" data-f="${f.id}" style="--c:${c.color}">` +
+      `<span class="val">${esc(f.value)}</span><span class="tag">${esc(c.label)}</span>` +
+      `<span class="ctx">${esc(f.ctx.l)} <i class="slot"></i> ${esc(f.ctx.r)}</span></button></li>`;
+  }
+  const s = A.sents[f.s].text;
+  const [a, z] = f.trig || [0, 0];
+  const from = Math.max(0, a - 70), to = Math.min(s.length, z + 110);
+  const snip = (from > 0 ? '…' : '') + esc(s.slice(from, a)) + '<b>' + esc(s.slice(a, z)) + '</b>' + esc(s.slice(z, to)) + (to < s.length ? '…' : '');
+  return `<li data-cat="${c.key}"${hidden}><button class="fact sent" type="button" data-f="${f.id}" style="--c:${c.color}">` +
+    `<span class="ctx">${snip}</span><span class="tag">${esc(c.label)}</span></button></li>`;
+}
+
+function appendFactRow(f) { $('#factList').insertAdjacentHTML('beforeend', factRowHtml(f)); }
+
+function renderPanel() {
+  $('#foundName').textContent = docName;
+  const listed = A.facts.filter(f => f.kind !== 'key').length;
+  $('#cFacts').textContent = listed ? ' ' + listed : '';
+  $('#cSum').textContent = A.key.length ? ' ' + A.key.length : '';
+  $('#cWords').textContent = A.keywords.length ? ' ' + A.keywords.length : '';
+
+  // filter pills
+  const cats = A.catList.filter(c => A.counts.get(c.key));
+  $('#pills').innerHTML = !listed ? '' :
+    `<button class="pill" type="button" data-cat="" aria-pressed="${!filter}">Все <span class="mono">${listed}</span></button>` +
+    cats.map(c => `<button class="pill" type="button" data-cat="${c.key}" aria-pressed="${filter === c.key}" style="--c:${c.color}"><i></i>${esc(c.label)} <span class="mono">${A.counts.get(c.key)}</span></button>`).join('');
+  if (!listed) $('#factList').innerHTML = '';
+
+  // summary grouped under the nearest heading
+  const modeLabel = MODES[A.mode].label;
+  $('#modeNote').innerHTML = `Режим: <b>${esc(modeLabel)}</b>${A.auto ? ' (определён автоматически)' : ''}. ` +
+    `Конспект — ${A.key.length} ${plural(A.key.length, 'главное предложение', 'главных предложения', 'главных предложений')} из ${fmt(A.sents.length)}, в порядке текста.`;
+  let html = '', lastHead = -1;
+  const keyFacts = A.facts.filter(f => f.kind === 'key');
+  for (const f of keyFacts) {
+    const s = A.sents[f.s];
+    let h = -1;
+    for (let b = s.b; b >= 0; b--) if (A.blocks[b].type === 'h') { h = b; break; }
+    if (h !== lastHead && h >= 0) { html += `<div class="sum-head">${esc(A.blocks[h].text)}</div>`; lastHead = h; }
+    html += `<button class="sum-item" type="button" data-f="${f.id}">${esc(s.text)}</button>`;
+  }
+  $('#sumList').innerHTML = html || '<p class="empty">Текст слишком короткий для конспекта.</p>';
+
+  $('#chips').innerHTML = A.keywords.map(k => `<button class="chip" type="button" data-q="${esc(k.word)}">${esc(k.word)}<span class="mono">${k.count}</span></button>`).join('')
+    || '<p class="empty">Повторяющихся слов не нашлось.</p>';
+}
+
+function plural(n, one, few, many) {
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return one;
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return few;
+  return many;
+}
+
+function applyFilter(key) {
+  filter = key || null;
+  $('#pills').querySelectorAll('.pill').forEach(p => p.setAttribute('aria-pressed', String((p.dataset.cat || null) === filter)));
+  $('#factList').querySelectorAll('li').forEach(li => { li.hidden = !!filter && li.dataset.cat !== filter; });
+  docEl.querySelectorAll('mark').forEach(m => m.classList.toggle('off', !!filter && m.dataset.cat !== filter));
+}
+
+function showTab(name) {
+  for (const t of ['facts', 'sum', 'words']) {
+    $('#tab-' + t).setAttribute('aria-selected', String(t === name));
+    $('#pane-' + t).hidden = t !== name;
+  }
+  $('#pbody').scrollTop = 0;
+}
+
+/* Jump to one fact: scroll there and send the spider. */
+function goTo(f) {
+  finishTour();
+  if (!f || !f.el) return;
+  if (isNarrow()) setPanelOpen(false);
+  const r = f.el.getBoundingClientRect();
+  requestAnimationFrame(() => {
+    const fa = freeArea();
+    const target = scrollY + r.top - (fa.top + (fa.bottom - fa.top) * 0.4);
+    window.scrollTo({ top: Math.max(0, target), behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+  lastUserScroll = 0;
+  const token = tour.token;
+  moveSpider(anchor(f), reduceMotion ? 1 : 450, token, null, () => {
+    spiderEl.classList.remove('walking');
+    lastVisited = f;
+    f.el.classList.remove('flash'); void f.el.offsetWidth; f.el.classList.add('flash');
+  });
+}
+
+/* =========================================================
+   9. Search
+   ========================================================= */
+let searchFacts = [];
+
+function clearSearch() {
+  finishTour();
+  searchFacts.forEach(f => f.el && f.el.classList.remove('found'));
+  searchFacts = [];
+  clearWeb(true);
+  $('#searchBlock').hidden = true;
+  $('#searchBlock').innerHTML = '';
+}
+
+function doSearch(q) {
+  q = q.trim();
+  clearSearch();
+  if (!q || !A) return;
+  const stems = (q.toLowerCase().replace(/ё/g, 'е').match(/[\p{L}\p{N}]+/gu) || [])
+    .filter(w => w.length >= 2).map(w => (w.length > 5 ? w.slice(0, w.length - 2) : w));
+  if (!stems.length) return;
+  const rx = new RegExp('(?<![\\p{L}\\p{N}])(?:' + stems.map(escRe).join('|') + ')', 'iu');
+  const hits = A.sents.filter(s => rx.test(s.text.toLowerCase().replace(/ё/g, 'е')));
+  searchFacts = hits.map((s, i) => ({ kind: 'search', cat: SEARCH_CAT, s: s.i, pos: -1, id: 'q' + i, el: sentEls[s.i] }));
+  showTab('facts');
+  const box = $('#searchBlock');
+  box.hidden = false;
+  box.innerHTML = `<div class="search-title"><span>«${esc(q)}» — ${hits.length ? `${hits.length} ${plural(hits.length, 'предложение', 'предложения', 'предложений')}` : 'ничего не нашлось'}</span>` +
+    `<button class="btn small ghost" type="button" id="searchClear">Сбросить</button></div>` +
+    `<ol class="facts">${hits.slice(0, 60).map((s, i) => {
+      const t = s.text.length > 180 ? s.text.slice(0, 180) + '…' : s.text;
+      return `<li><button class="fact sent" type="button" data-q="${i}" style="--c:var(--c-search)"><span class="ctx">${esc(t)}</span><span class="tag">Поиск</span></button></li>`;
+    }).join('')}</ol>`;
+  $('#pbody').scrollTop = 0;
+  if (!hits.length) return;
+  startTour(searchFacts, {
+    total: 5000, maxStep: 420, prev: null,
+    onVisit: (f, animate, prev) => {
+      f.el.classList.add('found');
+      if (prev) addEdge(prev, f, 'search', animate);
+      addNode(f);
+    },
+  });
+}
+
+/* =========================================================
+   10. Reading files
+   ========================================================= */
+async function readTextSmart(file) {
+  const buf = await file.arrayBuffer();
+  let t = new TextDecoder('utf-8').decode(buf);
+  if ((t.match(/\uFFFD/g) || []).length > 3) {
+    try { t = new TextDecoder('windows-1251').decode(buf); } catch (e) { /* keep utf-8 */ }
+  }
+  return t;
+}
+
+function htmlToText(str) {
+  const d = new DOMParser().parseFromString(str, 'text/html');
+  d.querySelectorAll('script,style,noscript,template,svg,iframe').forEach(n => n.remove());
+  const BLOCK = /^(P|DIV|H[1-6]|LI|TR|SECTION|ARTICLE|BLOCKQUOTE|PRE|TABLE|UL|OL|DL|DT|DD|FIGCAPTION|HEADER|FOOTER|MAIN|ASIDE|NAV|FORM|HR)$/;
+  let out = '';
+  (function walk(n) {
+    for (const c of n.childNodes) {
+      if (c.nodeType === 3) out += c.nodeValue.replace(/\s+/g, ' ');
+      else if (c.nodeType === 1) {
+        if (c.tagName === 'BR') { out += '\n'; continue; }
+        const b = BLOCK.test(c.tagName);
+        if (b) out += '\n\n';
+        walk(c);
+        if (b) out += '\n\n';
+        else if (c.tagName === 'TD' || c.tagName === 'TH') out += ' ';
+      }
+    }
+  })(d.body || d.documentElement);
+  return out;
+}
+
+function pdfPageText(items) {
+  const lines = [];
+  let cur = null;
+  for (const it of items) {
+    if (typeof it.str !== 'string') continue;
+    const y = it.transform[5], h = Math.abs(it.transform[3]) || it.height || 10;
+    if (cur && Math.abs(y - cur.y) > h * 0.6 && cur.t.trim()) { lines.push(cur); cur = null; }
+    if (!cur) cur = { t: '', y, h };
+    cur.t += it.str;
+    if (it.hasEOL) { if (cur.t.trim()) lines.push(cur); cur = null; }
+  }
+  if (cur && cur.t.trim()) lines.push(cur);
+  if (!lines.length) return '';
+  const gaps = [], lens = [];
+  for (let i = 1; i < lines.length; i++) { const g = lines[i - 1].y - lines[i].y; if (g > 0) gaps.push(g); }
+  lines.forEach(l => lens.push(l.t.trim().length));
+  const pick = (a, q) => (a.length ? [...a].sort((x, y) => x - y)[Math.floor((a.length - 1) * q)] : 0);
+  const gapMed = pick(gaps, 0.3) || 12; // usual line spacing: the low end, headings add bigger gaps
+  const lenMed = pick(lens, 0.5) || 60;
+  const paras = [];
+  let buf = lines[0].t.trim();
+  for (let i = 1; i < lines.length; i++) {
+    const t = lines[i].t.trim();
+    const g = lines[i - 1].y - lines[i].y;
+    const prev = lines[i - 1].t.trim();
+    const brk = g > gapMed * 1.45 || g < -2 || (prev.length < lenMed * 0.55 && /[.:!?]$|^[^.]*$/.test(prev) && /^\p{Lu}|^\d/u.test(t));
+    if (brk) { paras.push(buf); buf = t; }
+    else buf = /\p{L}[-‐]$/u.test(buf) && /^\p{Ll}/u.test(t) ? buf.slice(0, -1) + t : buf + ' ' + t;
+  }
+  paras.push(buf);
+  return paras.join('\n\n');
+}
+
+async function readPdf(file) {
+  await loadScript(LIBS.pdf);
+  const lib = window.pdfjsLib;
+  lib.GlobalWorkerOptions.workerSrc = LIBS.pdfWorker;
+  const pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
+  const pages = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    if (pdf.numPages > 3) toast(`Читаю PDF: страница ${p} из ${pdf.numPages}`, false, 0);
+    const page = await pdf.getPage(p);
+    pages.push(pdfPageText((await page.getTextContent()).items));
+  }
+  return pages.join('\n\n');
+}
+
+async function readDocx(file) {
+  await loadScript(LIBS.docx);
+  const r = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+  return r.value;
+}
+
+async function openFile(file) {
+  const name = file.name || 'Документ';
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  toast('Читаю «' + name + '»…', false, 0);
+  try {
+    let text;
+    if (ext === 'pdf' || file.type === 'application/pdf') text = await readPdf(file);
+    else if (ext === 'docx') text = await readDocx(file);
+    else if (ext === 'html' || ext === 'htm' || file.type === 'text/html') text = htmlToText(await readTextSmart(file));
+    else if (['txt', 'md', 'markdown', 'csv', 'log', 'text'].includes(ext) || (file.type || '').startsWith('text/')) text = await readTextSmart(file);
+    else if (ext === 'doc') throw new UserError('Старый формат .doc не поддерживается. Сохраните файл как .docx или PDF.');
+    else throw new UserError('Этот формат пока не поддерживается. Подойдут PDF, DOCX, TXT, MD и HTML.');
+    if (!text || text.replace(/\s/g, '').length < 20) {
+      throw new UserError(ext === 'pdf' ? 'В этом PDF нет текста — похоже, это скан. Сканы пока не распознаются.' : 'В файле не нашлось текста.');
+    }
+    $('#toast').hidden = true;
+    loadText(text, name, false);
+  } catch (e) {
+    console.error(e);
+    toast(e instanceof UserError ? e.message : 'Не удалось прочитать файл: ' + (e && e.message || e), true, 7000);
+  }
+}
+
+/* =========================================================
+   11. Loading a text into the app
+   ========================================================= */
+let currentText = '';
+
+function loadText(text, name, isSample) {
+  finishTour();
+  currentText = text;
+  docName = name;
+  $('#sampleNote').hidden = !isSample;
+  filter = null;
+  clearSearch();
+  $('#q').value = '';
+  A = analyze(text, $('#mode').value);
+  lastVisited = null;
+  renderDoc();
+  renderPanel();
+  showTab('facts');
+  if (!isSample) window.scrollTo({ top: 0 });
+  setTimeout(() => runMain(false), 350);
+}
+
+function reanalyze() {
+  if (!currentText) return;
+  loadText(currentText, docName, !$('#sampleNote').hidden);
+}
+
+/* =========================================================
+   12. Samples (fictional documents)
+   ========================================================= */
+const SAMPLES = {
+  contract: { name: 'Договор оказания услуг № 14/25 (пример)', text:
+`ДОГОВОР ОКАЗАНИЯ УСЛУГ № 14/25
+
+г. Казань, «3» марта 2025 г.
+
+ООО «Ромашка», именуемое в дальнейшем «Заказчик», в лице генерального директора Иванова П. С., и ООО «Вектор», именуемое в дальнейшем «Исполнитель», заключили настоящий договор о нижеследующем.
+
+1. Предмет договора
+
+1.1. Исполнитель обязуется оказать услуги по разработке и сопровождению сайта Заказчика, а Заказчик обязуется принять и оплатить эти услуги.
+
+1.2. Состав работ и сроки этапов указаны в Приложении № 1, которое является неотъемлемой частью договора.
+
+2. Стоимость и порядок оплаты
+
+2.1. Стоимость услуг составляет 480 000 (четыреста восемьдесят тысяч) рублей, НДС не облагается.
+
+2.2. Заказчик вносит аванс в размере 30% стоимости в течение 5 (пяти) рабочих дней с даты подписания договора.
+
+2.3. Оставшиеся 336 000 рублей Заказчик оплачивает в течение 10 банковских дней после подписания акта сдачи-приёмки.
+
+2.4. Ежемесячное сопровождение сайта оплачивается отдельно и стоит 25 000 руб. в месяц.
+
+3. Сроки
+
+3.1. Исполнитель должен завершить разработку не позднее 30.06.2025.
+
+3.2. Заказчик обязан предоставить материалы для сайта в течение 7 дней после запроса Исполнителя. Если Заказчик задерживает материалы, срок сдачи переносится на время задержки.
+
+4. Ответственность сторон
+
+4.1. За нарушение сроков оплаты Исполнитель вправе потребовать пени в размере 0,1% от неоплаченной суммы за каждый день просрочки.
+
+4.2. За срыв срока сдачи работ Исполнитель уплачивает штраф 5 000 руб. за каждую неделю просрочки, но не более 10% стоимости услуг.
+
+4.3. Стороны освобождаются от ответственности за неисполнение обязательств, вызванное обстоятельствами непреодолимой силы.
+
+5. Конфиденциальность
+
+5.1. Стороны обязуются не раскрывать третьим лицам конфиденциальную информацию, полученную при исполнении договора, в течение 3 лет после его окончания.
+
+6. Расторжение договора
+
+6.1. Заказчик вправе отказаться от договора в одностороннем порядке, письменно уведомив Исполнителя за 14 дней.
+
+6.2. При расторжении Заказчик оплачивает фактически оказанные услуги, а Исполнитель возвращает неотработанный аванс в течение 10 рабочих дней.
+
+7. Заключительные положения
+
+7.1. Договор вступает в силу с даты подписания и действует до 31 декабря 2025 года.
+
+7.2. Споры рассматриваются в арбитражном суде по месту нахождения Заказчика, претензионный срок составляет 15 дней.` },
+
+  report: { name: 'Годовой отчёт ООО «Лесная полка» за 2024 год (пример)', text:
+`Годовой отчёт за 2024 год
+
+Обзор года
+
+В 2024 году выручка компании выросла на 18% и составила 12,4 млрд руб. Основной рост дали онлайн-продажи: их доля в выручке увеличилась с 31% до 39%.
+
+Сеть выросла до 64 магазинов: за год мы открыли 9 новых точек в Поволжье и на Урале. Средний чек увеличился на 7% и достиг 6 850 руб.
+
+Финансовые результаты
+
+Показатель EBITDA составил 1,9 млрд руб., рентабельность по EBITDA — 15,3% против 14,1% годом ранее. Чистая прибыль выросла до 742 млн руб.
+
+Себестоимость росла медленнее выручки благодаря собственному складу в Казани, который начал работу 15 апреля 2024 г.
+
+Долг и финансирование
+
+Чистый долг на конец года составил 2,6 млрд руб., соотношение чистого долга к EBITDA — 1,4x. В марте 2024 года компания разместила облигации на 2 млрд руб. со ставкой купона 14,5% и погашением 15.06.2027.
+
+Кредитная линия в банке на 1 млрд руб. использована на 40%.
+
+Риски
+
+Главный риск для компании — высокая ключевая ставка: она удорожает обслуживание долга и снижает спрос на крупные покупки. Мы также видим риск роста логистических затрат и ослабления рубля, так как 22% ассортимента закупается за рубежом.
+
+Акционерам
+
+Совет директоров рекомендовал направить на дивиденды 30% чистой прибыли, это около 223 млн руб.
+
+Планы на 2025 год
+
+Мы ожидаем рост выручки на 10–12% и планируем открыть ещё 12 магазинов. Капитальные вложения составят около 900 млн руб., из них 35% пойдёт на развитие онлайн-канала.` },
+
+  paper: { name: 'Статья: дневной сон и запоминание (пример, вымышленные данные)', text:
+`Влияние короткого дневного сна на запоминание новых слов
+
+Аннотация
+
+Цель работы — проверить, помогает ли 20-минутный дневной сон лучше запоминать иностранные слова. В исследовании участвовали 64 студента в возрасте от 18 до 24 лет.
+
+Введение
+
+Известно, что ночной сон помогает закреплять новые знания. Гипотеза этой работы состоит в том, что даже короткий дневной сон даёт похожий эффект, если он следует сразу за обучением.
+
+Методы
+
+Участников случайно разделили на две группы по 32 человека. Обе группы учили 40 новых слов на финском языке в течение 30 минут.
+
+После обучения первая группа спала 20 минут, а вторая смотрела нейтральное видео той же длительности. Запоминание измеряли дважды: через 1 час и через 7 дней.
+
+Результаты
+
+Через час группа сна вспомнила в среднем 24,1 слова, контрольная группа — 21,5 слова. Через неделю разница выросла: 19,8 слова против 15,2 слова, то есть на 30% больше.
+
+Различия оказались статистически значимыми (p < 0,05) для обоих замеров. Самый заметный эффект показали участники, которые заснули быстрее чем за 5 минут.
+
+Обсуждение и выводы
+
+Таким образом, короткий дневной сон заметно улучшает долгосрочное запоминание слов. Эффект сильнее проявляется через неделю, чем через час.
+
+Ограничения
+
+У работы есть ограничения: выборка небольшая, а все участники — студенты одного университета. Для проверки результата нужны дальнейшие исследования на людях разного возраста.` },
+};
+
+function loadSample(key) {
+  const s = SAMPLES[key];
+  loadText(s.text, s.name, true);
+}
+
+/* =========================================================
+   13. Wiring
+   ========================================================= */
+function setPanelOpen(open) {
+  $('#panel').classList.toggle('open', open);
+  $('#grab').setAttribute('aria-expanded', String(open));
+  $('#grab').setAttribute('aria-label', open ? 'Свернуть панель' : 'Развернуть панель');
+}
+
+function factById(id) {
+  if (typeof id === 'string' && id.startsWith('q')) return searchFacts[+id.slice(1)];
+  return A && A.facts[+id];
+}
+
+function buildCopyText() {
+  const lines = [`Конспект: ${docName}`, `Режим: ${MODES[A.mode].label}`, '', 'ГЛАВНОЕ'];
+  A.key.forEach(s => lines.push('• ' + s.text));
+  const groups = new Map();
+  A.facts.filter(f => f.kind !== 'key').forEach(f => {
+    if (!groups.has(f.cat.label)) groups.set(f.cat.label, []);
+    groups.get(f.cat.label).push(f.kind === 'value' ? `${f.value} — ${f.ctx.l} … ${f.ctx.r}`.trim() : A.sents[f.s].text);
+  });
+  for (const [label, items] of groups) { lines.push('', label.toUpperCase()); [...new Set(items)].forEach(t => lines.push('• ' + t)); }
+  return lines.join('\n');
+}
+
+async function copySummary() {
+  if (!A) return;
+  const text = buildCopyText();
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Конспект скопирован');
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    ta.remove();
+    toast(ok ? 'Конспект скопирован' : 'Браузер не дал скопировать. Откройте вкладку «Конспект» и выделите текст вручную.', !ok);
+  }
+}
+
+$('#file').addEventListener('change', e => { const f = e.target.files[0]; if (f) openFile(f); e.target.value = ''; });
+$('#sample').addEventListener('change', e => loadSample(e.target.value));
+$('#mode').addEventListener('change', reanalyze);
+$('#btnRun').addEventListener('click', () => runMain(false));
+$('#btnSkip').addEventListener('click', finishTour);
+$('#btnCopy').addEventListener('click', copySummary);
+$('#grab').addEventListener('click', () => setPanelOpen(!$('#panel').classList.contains('open')));
+$('#searchForm').addEventListener('submit', e => { e.preventDefault(); doSearch($('#q').value); });
+$('#q').addEventListener('search', () => { if (!$('#q').value) clearSearch(); });
+['facts', 'sum', 'words'].forEach(t => $('#tab-' + t).addEventListener('click', () => showTab(t)));
+
+$('#panel').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (pill) { applyFilter(pill.dataset.cat); return; }
+  const chip = e.target.closest('.chip');
+  if (chip) { $('#q').value = chip.dataset.q; doSearch(chip.dataset.q); return; }
+  if (e.target.closest('#searchClear')) { $('#q').value = ''; clearSearch(); return; }
+  const item = e.target.closest('[data-f],[data-q]');
+  if (item && item.closest('.pbody')) goTo(item.dataset.q !== undefined ? searchFacts[+item.dataset.q] : factById(item.dataset.f));
+});
+
+docEl.addEventListener('click', e => {
+  const m = e.target.closest('mark[data-f]');
+  if (!m) return;
+  const f = factById(m.dataset.f);
+  if (!f || f.kind === 'key') return;
+  showTab('facts');
+  const row = $(`#factList button[data-f="${f.id}"]`);
+  if (row) { row.scrollIntoView({ block: 'nearest' }); row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash'); }
+});
+
+// paste
+const pasteBox = $('#pasteBox');
+$('#btnPaste').addEventListener('click', () => { pasteBox.hidden = false; $('#pasteText').focus(); });
+$('#pasteCancel').addEventListener('click', () => { pasteBox.hidden = true; });
+$('#pasteGo').addEventListener('click', () => {
+  const t = $('#pasteText').value;
+  if (t.replace(/\s/g, '').length < 20) { toast('Вставьте текст подлиннее — хотя бы пару предложений.', true); return; }
+  pasteBox.hidden = true;
+  $('#pasteText').value = '';
+  loadText(t, 'Вставленный текст', false);
+});
+pasteBox.addEventListener('click', e => { if (e.target === pasteBox) pasteBox.hidden = true; });
+addEventListener('keydown', e => { if (e.key === 'Escape' && !pasteBox.hidden) pasteBox.hidden = true; });
+document.addEventListener('paste', e => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  const t = e.clipboardData && e.clipboardData.getData('text/plain');
+  if (t && t.replace(/\s/g, '').length >= 80) { e.preventDefault(); loadText(t, 'Вставленный текст', false); }
+});
+
+// drag & drop
+let dragDepth = 0;
+addEventListener('dragenter', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { dragDepth++; $('#drop').hidden = false; } });
+addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $('#drop').hidden = true; });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; $('#drop').hidden = true;
+  const f = e.dataTransfer && e.dataTransfer.files[0];
+  if (f) openFile(f);
+});
+
+// layout changes move the text, so the web is redrawn
+function measureHeader() { document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px'); }
+let resizeTimer = 0;
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { measureHeader(); redrawWeb(); }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureHeader(); redrawWeb(); });
+
+measureHeader();
+loadSample('contract');
+</script>
+</body>
+</html>
