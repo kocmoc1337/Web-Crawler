@@ -169,8 +169,8 @@ button, select, input, textarea { font: inherit; color: inherit; }
 }
 .hero-tag i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--c); margin-right: 7px; vertical-align: 1px; }
 .hero-tag.t1 { --c: var(--c1); left: 0; top: 190px; }
-.hero-tag.t2 { --c: var(--c3); right: 0; top: 120px; animation-delay: -1.5s; }
-.hero-tag.t3 { --c: var(--c4); right: 18px; top: 250px; animation-delay: -3s; }
+.hero-tag.t2 { --c: var(--c3); right: 0; top: 120px; }
+.hero-tag.t3 { --c: var(--c4); right: 18px; top: 250px; }
 @keyframes descend { from { transform: translateY(-340px); } to { transform: translateY(0); } }
 @keyframes swing { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 @keyframes float { from { transform: translateY(-4px); } to { transform: translateY(5px); } }
@@ -464,6 +464,116 @@ mark.off { background: none !important; box-shadow: none !important; }
 .modal-card textarea:focus { border-color: var(--accent); outline: none; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
+/* ---------- Motion ---------- */
+:root { --ease-out: cubic-bezier(.2, .8, .2, 1); --ease-spring: cubic-bezier(.3, 1.45, .5, 1); }
+
+/* Loader: the spider drops in and spins a web; the screen then closes like an iris onto it */
+.loader {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; padding: 24px;
+  background: radial-gradient(560px 380px at 50% 42%, var(--accent-soft), transparent 70%), var(--bg);
+  clip-path: circle(150% at 50% 42%);
+  transition: clip-path .85s cubic-bezier(.7, 0, .2, 1);
+}
+.loader.busy { background: radial-gradient(560px 380px at 50% 42%, var(--accent-soft), transparent 70%), color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.loader.out { clip-path: circle(0% at 50% 42%); }
+.loader-stage { position: relative; width: 220px; height: 220px; margin-bottom: 6px; }
+.loader-web { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: spin 24s linear infinite; }
+.loader-web line, .loader-web polygon {
+  fill: none; stroke: var(--thread); stroke-width: .9; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: draw .55s var(--ease-out) forwards; animation-delay: var(--d);
+}
+.loader-web polygon { stroke-width: .75; opacity: .8; }
+.loader-drop { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px 0 0 -42px; animation: ldDrop 1.05s cubic-bezier(.2, .9, .3, 1.18) .1s both; }
+.loader-thread { position: absolute; left: 50%; bottom: 50%; width: 1.2px; height: 240px; margin-left: -.6px; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 60%, transparent), transparent); }
+.loader-spider { position: relative; width: 84px; height: 84px; transform: rotate(-90deg); filter: drop-shadow(0 8px 8px var(--shadow)); }
+.loader .ga { animation: gait .22s ease-in-out infinite alternate; }
+.loader .gb { animation: gait .22s ease-in-out infinite alternate-reverse; }
+.loader-title { font: 600 24px/1.2 var(--font-serif); letter-spacing: -.015em; }
+.loader-title::after { content: "..."; display: inline-block; width: 0; overflow: hidden; vertical-align: bottom; animation: dots 1.2s steps(4) infinite; }
+.loader-sub { font-size: 14px; color: var(--muted); min-height: 1.4em; font-variant-numeric: tabular-nums; }
+.loader-bar { width: 220px; height: 3px; border-radius: 3px; background: var(--bg-2); overflow: hidden; }
+.loader-bar i { display: block; height: 100%; width: 40%; border-radius: 3px; background: var(--accent); animation: indet 1.1s ease-in-out infinite; }
+.loader-bar.det i { animation: none; transition: width .25s var(--ease-out); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes ldDrop { from { transform: translateY(-230px); } to { transform: none; } }
+@keyframes dots { to { width: 1.1em; } }
+@keyframes indet { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+/* Page entrance after the loader */
+.reveal { opacity: 0; transform: translateY(18px); }
+.ready .reveal { animation: fadeUp .85s var(--ease-out) both; animation-delay: var(--d, 0s); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.hero-title .w { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0 .08em .12em 0; margin: 0 -.08em -.12em 0; }
+.hero-title .w > span { display: inline-block; transform: translateY(110%); }
+.ready .hero-title .w > span { animation: wordUp .95s var(--ease-out) both; animation-delay: calc(var(--i) * 85ms + .15s); }
+@keyframes wordUp { from { transform: translateY(110%); } to { transform: none; } }
+.hero-drop { animation: none; transform: translateY(-340px); }
+.ready .hero-drop { animation: descend 1.5s cubic-bezier(.2, .85, .3, 1.12) .35s both; }
+.hero-tag { opacity: 0; }
+.hero-tag.t1 { --td: 1.5s; } .hero-tag.t2 { --td: 1.7s; } .hero-tag.t3 { --td: 1.9s; }
+.ready .hero-tag { animation: tagIn .65s var(--ease-spring) both, float 5s ease-in-out infinite alternate; animation-delay: var(--td), calc(var(--td) + .65s); }
+@keyframes tagIn { from { opacity: 0; transform: translateY(12px) scale(.6); } to { opacity: 1; transform: none; } }
+
+/* Sliding indicators */
+.modes { position: relative; }
+.seg-ind { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 9px; background: var(--paper); box-shadow: 0 1px 4px var(--shadow); pointer-events: none; transition: transform .5s var(--ease-spring), width .5s var(--ease-spring); }
+.mode { position: relative; z-index: 1; transition: color .25s; }
+.mode[aria-pressed="true"] { background: none; box-shadow: none; }
+.tabs { position: relative; }
+.tab { transition: color .2s; }
+.tab[aria-selected="true"] { border-bottom-color: transparent; }
+.tab-ind { position: absolute; bottom: -1px; left: 0; width: 0; height: 2px; border-radius: 2px; background: var(--accent); pointer-events: none; transition: transform .5s var(--ease-spring), width .5s var(--ease-spring); }
+
+/* Live bits */
+.tally-num { transform-origin: left bottom; }
+.tally-num.bump { animation: bump .4s var(--ease-spring); }
+@keyframes bump { 35% { transform: scale(1.13); color: var(--accent); } }
+.facts > li { animation: rowIn .45s var(--ease-out) both; }
+.facts.calm > li { animation: none; }
+@keyframes rowIn { from { opacity: 0; transform: translateX(16px); } }
+.pbody > [role="tabpanel"]:not([hidden]) { animation: paneIn .35s var(--ease-out); }
+@keyframes paneIn { from { opacity: 0; transform: translateY(8px); } }
+.sum-item, .chip { animation: fadeUp .5s var(--ease-out) both; animation-delay: calc(var(--n, 0) * 45ms); }
+.doc.doc-in { animation: docIn .7s var(--ease-out); }
+@keyframes docIn { from { opacity: 0; filter: blur(3px); } }
+#web g.pop > circle { transform-box: fill-box; transform-origin: center; animation: dewIn .55s var(--ease-spring) both; }
+@keyframes dewIn { from { transform: scale(0); } }
+
+/* Hover and press */
+.btn:hover { transform: translateY(-1px); }
+.btn.primary:hover { box-shadow: 0 12px 24px -10px var(--accent); }
+.btn:active { transform: translateY(0) scale(.98); }
+.btn:disabled:hover { transform: none; }
+.sample-btn, .pill, .chip { transition: border-color .2s, background-color .2s, color .2s, transform .25s var(--ease-out); }
+.sample-btn:hover, .pill:hover, .chip:hover { transform: translateY(-1px); }
+.fact, .sum-item { transition: background-color .2s, border-color .2s, transform .25s var(--ease-out); }
+.fact:hover, .sum-item:hover { transform: translateX(3px); }
+
+/* Toast, dialogs, drop zone */
+#toast { opacity: 0; transform: translate(-50%, -12px) scale(.98); transition: opacity .25s, transform .35s var(--ease-spring); }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+.modal:not([hidden]) { animation: fade .25s ease both; }
+.modal:not([hidden]) .modal-card { animation: cardIn .45s var(--ease-spring) both; }
+.drop:not([hidden]) { animation: fade .2s ease both; }
+.drop:not([hidden]) .spider-art { animation: hop .8s ease-in-out infinite alternate; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(.96); } }
+@keyframes hop { from { transform: translateY(-8px); } to { transform: translateY(6px); } }
+@media (max-width: 979.98px) { .panel { transition: height .45s cubic-bezier(.2, .9, .25, 1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .hero-title .w > span, .hero-tag { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .hero-drop { transform: none; }
+  .loader-web line, .loader-web polygon { animation: none; stroke-dashoffset: 0; }
+  .loader-web, .loader-drop, .loader .ga, .loader .gb, .loader-bar i, .loader-title::after { animation: none !important; }
+  .facts > li, .sum-item, .chip, .doc.doc-in, #web g.pop > circle, .tally-num.bump, .pbody > [role="tabpanel"]:not([hidden]),
+  .modal:not([hidden]), .modal:not([hidden]) .modal-card, .drop:not([hidden]), .drop:not([hidden]) .spider-art { animation: none !important; }
+  .seg-ind, .tab-ind, #toast, .loader { transition: none; }
+  .btn:hover, .fact:hover, .sum-item:hover, .sample-btn:hover, .pill:hover, .chip:hover { transform: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .ping, .flash, .hero-drop, .hero-hang, .hero-tag { animation: none; }
   #spider .ga, #spider .gb, #spider .sp-body, .hero-hang .ga, .hero-hang .gb, .hero-hang .sp-body { animation: none !important; }
@@ -507,17 +617,17 @@ mark.off { background: none !important; box-shadow: none !important; }
 <section class="hero" id="intro" aria-labelledby="introTitle">
   <div class="hero-in">
     <div class="hero-copy">
-      <span class="eyebrow-pill"><i></i><span class="lbl-long">Без регистрации и ключей · всё в браузере</span><span class="lbl-short">Без ключей, в браузере</span></span>
-      <h2 class="hero-title" id="introTitle">Длинный документ — <em>короткий конспект</em></h2>
-      <p class="hero-sub">Перетащите PDF, DOCX или TXT. Паук прочитает текст, подсветит суммы, даты и сроки и соберёт главное — с переходом к месту в тексте. Файл остаётся на вашем устройстве.</p>
-      <div class="intro-actions">
+      <span class="eyebrow-pill reveal" style="--d:.05s"><i></i><span class="lbl-long">Без регистрации и ключей · всё в браузере</span><span class="lbl-short">Без ключей, в браузере</span></span>
+      <h2 class="hero-title" id="introTitle"><span class="w" style="--i:0"><span>Длинный</span></span> <span class="w" style="--i:1"><span>документ</span></span> <span class="w" style="--i:2"><span>—</span></span> <em><span class="w" style="--i:3"><span>короткий</span></span> <span class="w" style="--i:4"><span>конспект</span></span></em></h2>
+      <p class="hero-sub reveal" style="--d:.55s">Перетащите PDF, DOCX или TXT. Паук прочитает текст, подсветит суммы, даты и сроки и соберёт главное — с переходом к месту в тексте. Файл остаётся на вашем устройстве.</p>
+      <div class="intro-actions reveal" style="--d:.7s">
         <label class="btn primary" for="file">
           <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="11" x2="8" y2="2"/><polyline points="4.5,5.5 8,2 11.5,5.5"/><line x1="2.5" y1="14" x2="13.5" y2="14"/></svg>
           Выбрать файл
         </label>
         <button class="btn" id="btnPaste2" type="button">Вставить текст</button>
       </div>
-      <div class="intro-samples" role="group" aria-label="Примеры документов">
+      <div class="intro-samples reveal" style="--d:.85s" role="group" aria-label="Примеры документов">
         <span>Или пример:</span>
         <button class="sample-btn" type="button" data-sample="contract">Договор</button>
         <button class="sample-btn" type="button" data-sample="report">Отчёт</button>
@@ -534,7 +644,7 @@ mark.off { background: none !important; box-shadow: none !important; }
 </section>
 
 <main class="layout">
-  <div class="main-col">
+  <div class="main-col reveal" style="--d:.95s">
     <article class="sheet" id="sheet">
       <div class="doc-head">
         <div class="eyebrow" id="docEyebrow">Документ</div>
@@ -548,7 +658,7 @@ mark.off { background: none !important; box-shadow: none !important; }
     </article>
   </div>
 
-  <aside class="panel" id="panel" aria-label="Что нашёл паук">
+  <aside class="panel reveal" style="--d:1.1s" id="panel" aria-label="Что нашёл паук">
     <button class="grab" id="grab" type="button" aria-expanded="false" aria-label="Развернуть панель"><span></span></button>
     <div class="phead">
       <div class="tally">
@@ -574,6 +684,7 @@ mark.off { background: none !important; box-shadow: none !important; }
         </button>
       </div>
       <div class="modes" id="modes" role="group" aria-label="Режим разбора">
+        <span class="seg-ind" aria-hidden="true"></span>
         <button class="mode" type="button" data-mode="auto" aria-pressed="true">Авто</button>
         <button class="mode" type="button" data-mode="contract" aria-pressed="false">Договор</button>
         <button class="mode" type="button" data-mode="report" aria-pressed="false">Отчёт</button>
@@ -588,6 +699,7 @@ mark.off { background: none !important; box-shadow: none !important; }
       </form>
     </div>
     <div class="tabs" role="tablist">
+      <span class="tab-ind" aria-hidden="true"></span>
       <button class="tab" role="tab" id="tab-facts" aria-selected="true" aria-controls="pane-facts" type="button">Факты<span class="mono" id="cFacts"></span></button>
       <button class="tab" role="tab" id="tab-sum" aria-selected="false" aria-controls="pane-sum" type="button">Конспект<span class="mono" id="cSum"></span></button>
       <button class="tab" role="tab" id="tab-words" aria-selected="false" aria-controls="pane-words" type="button">Слова<span class="mono" id="cWords"></span></button>
@@ -623,6 +735,15 @@ mark.off { background: none !important; box-shadow: none !important; }
 </div>
 <div class="drop" id="drop" hidden><div class="spider-art" aria-hidden="true"></div>Отпустите файл — паук его прочитает</div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="loader-stage" aria-hidden="true">
+    <svg class="loader-web" id="loaderWeb" viewBox="-100 -100 200 200"></svg>
+    <div class="loader-drop"><div class="loader-thread"></div><div class="loader-spider spider-art"></div></div>
+  </div>
+  <div class="loader-title" id="loaderTitle">Паук плетёт паутину</div>
+  <div class="loader-sub" id="loaderSub">Готовлю страницу</div>
+  <div class="loader-bar" aria-hidden="true"><i id="loaderBar"></i></div>
+</div>
 
 <script>
 'use strict';
@@ -661,9 +782,78 @@ function loadScript(src) {
 let toastTimer = 0;
 function toast(msg, isErr = false, ms = 3800) {
   const t = $('#toast');
-  t.textContent = msg; t.classList.toggle('err', isErr); t.hidden = false;
   clearTimeout(toastTimer);
-  if (ms) toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+  t.textContent = msg; t.classList.toggle('err', isErr);
+  t.hidden = false;
+  requestAnimationFrame(() => t.classList.add('show'));
+  if (ms) toastTimer = setTimeout(hideToast, ms);
+}
+function hideToast() {
+  const t = $('#toast');
+  clearTimeout(toastTimer);
+  t.classList.remove('show');
+  toastTimer = setTimeout(() => { t.hidden = true; }, 320);
+}
+
+/* Loader: used once at start and again while a file is being read. */
+const loaderEl = $('#loader');
+let loaderTimer = 0, booted = false;
+const readyQueue = [];
+function whenReady(fn) { if (booted) fn(); else readyQueue.push(fn); }
+function buildLoaderWeb() {
+  const N = 12, R = 92;
+  const ang = Array.from({ length: N }, (_, i) => (i / N) * Math.PI * 2 - Math.PI / 2);
+  let h = ang.map((a, i) => `<line x1="0" y1="0" x2="${(Math.cos(a) * R).toFixed(1)}" y2="${(Math.sin(a) * R).toFixed(1)}" pathLength="1" style="--d:${i * 45}ms"/>`).join('');
+  [16, 28, 40, 52, 64, 76, 88].forEach((r, j) => {
+    const pts = ang.map((a, i) => { const rr = r * (1 + Math.sin(i * 2.1 + j) * 0.03); return `${(Math.cos(a) * rr).toFixed(1)},${(Math.sin(a) * rr).toFixed(1)}`; }).join(' ');
+    h += `<polygon points="${pts}" pathLength="1" style="--d:${560 + j * 120}ms"/>`;
+  });
+  $('#loaderWeb').innerHTML = h;
+}
+function updateLoader(sub, progress = null) {
+  $('#loaderSub').textContent = sub;
+  $('#loaderBar').parentElement.classList.toggle('det', progress != null);
+  $('#loaderBar').style.width = progress != null ? Math.round(progress * 100) + '%' : '';
+}
+function showLoader(title, sub, progress = null) {
+  clearTimeout(loaderTimer);
+  $('#loaderTitle').textContent = title;
+  updateLoader(sub, progress);
+  buildLoaderWeb();
+  const drop = $('.loader-drop');
+  drop.style.animation = 'none'; void drop.offsetWidth; drop.style.animation = '';
+  loaderEl.classList.add('busy');
+  if (loaderEl.hidden) { loaderEl.classList.add('out'); loaderEl.hidden = false; void loaderEl.offsetWidth; }
+  loaderEl.classList.remove('out');
+}
+function hideLoader() {
+  if (loaderEl.hidden) return;
+  clearTimeout(loaderTimer);
+  if (reduceMotion) { loaderEl.hidden = true; loaderEl.classList.remove('busy'); return; }
+  loaderEl.classList.add('out');
+  loaderTimer = setTimeout(() => { loaderEl.hidden = true; loaderEl.classList.remove('out', 'busy'); }, 900);
+}
+function finishBoot() {
+  if (booted) return;
+  booted = true;
+  document.body.classList.add('ready');
+  measureHeader(); syncInds(); redrawWeb();
+  hideLoader();
+  readyQueue.splice(0).forEach(fn => fn());
+}
+
+/* Sliding indicators under the active mode and tab. */
+function slideInd(ind, btn) {
+  if (!ind || !btn || !btn.offsetWidth) return;
+  const first = !ind.style.width;
+  if (first) ind.style.transition = 'none';
+  ind.style.width = btn.offsetWidth + 'px';
+  ind.style.transform = `translateX(${btn.offsetLeft}px)`;
+  if (first) { void ind.offsetWidth; ind.style.transition = ''; }
+}
+function syncInds() {
+  slideInd($('.seg-ind'), $('.mode[aria-pressed="true"]'));
+  slideInd($('.tab-ind'), $('.tab[aria-selected="true"]'));
 }
 
 /* Spider drawing: head points to +x. Legs are split in two groups (a/b) that swing in turn, like a real gait. */
@@ -1054,6 +1244,7 @@ function renderDoc() {
   $('#docMeta').innerHTML = [`${fmt(A.sents.length)} предл.`, `${fmt(A.wordCount)} слов`, `~${mins} мин чтения`]
     .map(t => `<span>${esc(t)}</span>`).join('');
   sizeWeb();
+  docEl.classList.remove('doc-in'); void docEl.offsetWidth; docEl.classList.add('doc-in');
 }
 
 /* =========================================================
@@ -1105,8 +1296,9 @@ function addEdge(a, b, cls, animate) {
   edges.push({ a, b, cls, el: ln });
 }
 
-function addNode(f) {
+function addNode(f, animate = false) {
   const g = document.createElementNS(SVGNS, 'g');
+  if (animate) g.setAttribute('class', 'pop');
   const r = f.kind === 'key' ? 4.2 : 3.4;
   g.innerHTML = `<circle class="dew-body" r="${r}" style="fill:${f.cat.color}"/><circle r="${r}" fill="url(#g-dew)"/>`;
   const p = anchor(f);
@@ -1290,6 +1482,7 @@ function runMain(instant = false, follow = true) {
   clearSearch();
   clearWeb(); resetLit(); visited = []; rowBuf = [];
   $('#factList').innerHTML = '';
+  $('#factList').classList.remove('calm');
   setCounters(0);
   spResting = false;
   lastVisited = null;
@@ -1307,13 +1500,16 @@ function runMain(instant = false, follow = true) {
         if (d > 12 && d < bestD) { best = g; bestD = d; }
       }
       if (best) addEdge(best, f, 'mesh', animate);
-      addNode(f);
+      addNode(f, animate);
       visited.push(f);
       if (f.kind !== 'key') { if (animate) appendFactRow(f); else rowBuf.push(factRowHtml(f)); }
       if (animate) setCounters(visited.length, f.s);
       if (animate && !$('#pane-facts').hidden) { const pb = $('#pbody'); pb.scrollTop = pb.scrollHeight; }
     },
-    flush: () => { $('#factList').insertAdjacentHTML('beforeend', rowBuf.join('')); rowBuf = []; },
+    flush: () => {
+      if (rowBuf.length > 40) $('#factList').classList.add('calm');
+      $('#factList').insertAdjacentHTML('beforeend', rowBuf.join('')); rowBuf = [];
+    },
     onEnd: () => {
       setCounters(visited.length, A.sents.length - 1);
       if (!$('#factList').children.length) $('#factList').innerHTML = '<li class="empty">Сумм, дат и сроков здесь нет. Загляните во вкладку «Конспект» или поищите слово.</li>';
@@ -1323,7 +1519,11 @@ function runMain(instant = false, follow = true) {
 }
 
 function setCounters(found, sentIdx = -1) {
-  $('#nFound').textContent = fmt(found);
+  const num = $('#nFound'), text = fmt(found);
+  if (num.textContent !== text && found > 0 && tour.active && !reduceMotion) {
+    num.classList.remove('bump'); void num.offsetWidth; num.classList.add('bump');
+  }
+  num.textContent = text;
   const seen = sentIdx + 1;
   const n = A.sents.length;
   $('#nOf').textContent = `в ${fmt(n)} ${plural(n, 'предложении', 'предложениях', 'предложениях')}`;
@@ -1376,19 +1576,20 @@ function renderPanel() {
     `Конспект — ${A.key.length} ${plural(A.key.length, 'главное предложение', 'главных предложения', 'главных предложений')} из ${fmt(A.sents.length)}, в порядке текста.`;
   let html = '', lastHead = -1;
   const keyFacts = A.facts.filter(f => f.kind === 'key');
+  let n = 0;
   for (const f of keyFacts) {
     const s = A.sents[f.s];
     let h = -1;
     for (let b = s.b; b >= 0; b--) if (A.blocks[b].type === 'h') { h = b; break; }
     if (h !== lastHead && h >= 0) { html += `<div class="sum-head">${esc(A.blocks[h].text)}</div>`; lastHead = h; }
-    html += `<button class="sum-item" type="button" data-f="${f.id}"><span>${esc(s.text)}</span></button>`;
+    html += `<button class="sum-item" type="button" data-f="${f.id}" style="--n:${Math.min(n++, 20)}"><span>${esc(s.text)}</span></button>`;
   }
   $('#sumList').innerHTML = html || '<p class="empty">Текст слишком короткий для конспекта.</p>';
 
   const top = A.keywords.length ? A.keywords[0].count : 1, low = A.keywords.length ? A.keywords[A.keywords.length - 1].count : 1;
-  $('#chips').innerHTML = A.keywords.map(k => {
+  $('#chips').innerHTML = A.keywords.map((k, n) => {
     const size = 13 + 7 * (top === low ? 0.5 : (k.count - low) / (top - low));
-    return `<button class="chip" type="button" data-q="${esc(k.word)}" style="font-size:${size.toFixed(1)}px">${esc(k.word)}<span class="mono">${k.count}</span></button>`;
+    return `<button class="chip" type="button" data-q="${esc(k.word)}" style="font-size:${size.toFixed(1)}px;--n:${Math.min(n, 20)}">${esc(k.word)}<span class="mono">${k.count}</span></button>`;
   }).join('')
     || '<p class="empty">Повторяющихся слов не нашлось.</p>';
 }
@@ -1413,6 +1614,7 @@ function showTab(name) {
     $('#pane-' + t).hidden = t !== name;
   }
   $('#pbody').scrollTop = 0;
+  slideInd($('.tab-ind'), $('#tab-' + name));
 }
 
 /* Jump to one fact: scroll there and send the spider. */
@@ -1476,7 +1678,7 @@ function doSearch(q) {
     onVisit: (f, animate, prev) => {
       f.el.classList.add('found');
       if (prev) addEdge(prev, f, 'search', animate);
-      addNode(f);
+      addNode(f, animate);
     },
   });
 }
@@ -1554,7 +1756,7 @@ async function readPdf(file) {
   const pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
   const pages = [];
   for (let p = 1; p <= pdf.numPages; p++) {
-    if (pdf.numPages > 3) toast(`Читаю PDF: страница ${p} из ${pdf.numPages}`, false, 0);
+    updateLoader(`Страница ${p} из ${pdf.numPages}`, (p - 1) / pdf.numPages);
     const page = await pdf.getPage(p);
     pages.push(pdfPageText((await page.getTextContent()).items));
   }
@@ -1570,7 +1772,8 @@ async function readDocx(file) {
 async function openFile(file) {
   const name = file.name || 'Документ';
   const ext = (name.split('.').pop() || '').toLowerCase();
-  toast('Читаю «' + name + '»…', false, 0);
+  hideToast();
+  const loaderDelay = setTimeout(() => showLoader('Паук читает файл', '«' + name + '»'), 180);
   try {
     let text;
     if (ext === 'pdf' || file.type === 'application/pdf') text = await readPdf(file);
@@ -1582,10 +1785,13 @@ async function openFile(file) {
     if (!text || text.replace(/\s/g, '').length < 20) {
       throw new UserError(ext === 'pdf' ? 'В этом PDF нет текста — похоже, это скан. Сканы пока не распознаются.' : 'В файле не нашлось текста.');
     }
-    $('#toast').hidden = true;
+    clearTimeout(loaderDelay);
+    hideLoader();
     loadText(text, name, false);
   } catch (e) {
     console.error(e);
+    clearTimeout(loaderDelay);
+    hideLoader();
     toast(e instanceof UserError ? e.message : 'Не удалось прочитать файл: ' + (e && e.message || e), true, 7000);
   }
 }
@@ -1594,6 +1800,7 @@ async function openFile(file) {
    11. Loading a text into the app
    ========================================================= */
 let currentText = '';
+const HERO_TITLE = '<span class="w" style="--i:0"><span>Длинный</span></span> <span class="w" style="--i:1"><span>документ</span></span> <span class="w" style="--i:2"><span>—</span></span> <em><span class="w" style="--i:3"><span>короткий</span></span> <span class="w" style="--i:4"><span>конспект</span></span></em>';
 let isSampleDoc = false;
 let sampleKey = '';
 let modePref = 'auto';
@@ -1606,7 +1813,7 @@ function loadText(text, name, isSample, key = '', autoplay = false) {
   sampleKey = isSample ? key : '';
   const intro = $('#intro');
   intro.classList.toggle('compact', !isSample);
-  $('#introTitle').innerHTML = isSample ? 'Длинный документ — <em>короткий конспект</em>' : 'Открыть другой документ';
+  $('#introTitle').innerHTML = isSample ? HERO_TITLE : 'Открыть другой документ';
   document.querySelectorAll('.sample-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sample === sampleKey)));
   filter = null;
   clearSearch();
@@ -1620,7 +1827,8 @@ function loadText(text, name, isSample, key = '', autoplay = false) {
   showTab('facts');
   if (!isSample) window.scrollTo({ top: 0 });
   // first visit: let the hero spider drop in first, then the camera takes over
-  setTimeout(() => runMain(false), autoplay ? 1700 : 350);
+  if (autoplay) whenReady(() => setTimeout(() => runMain(false), reduceMotion ? 0 : 1500));
+  else setTimeout(() => runMain(false), 350);
 }
 
 function reanalyze() {
@@ -1635,6 +1843,7 @@ function renderModes() {
     b.classList.toggle('detected', detected);
     b.title = detected ? 'Режим определён автоматически' : '';
   });
+  slideInd($('.seg-ind'), $('.mode[aria-pressed="true"]'));
 }
 
 /* =========================================================
@@ -1771,6 +1980,7 @@ function setPanelOpen(open) {
   $('#panel').classList.toggle('open', open);
   $('#grab').setAttribute('aria-expanded', String(open));
   $('#grab').setAttribute('aria-label', open ? 'Свернуть панель' : 'Развернуть панель');
+  requestAnimationFrame(syncInds);
 }
 
 function factById(id) {
@@ -1881,14 +2091,22 @@ addEventListener('drop', e => {
 // layout changes move the text, so the web is redrawn
 function measureHeader() { document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px'); }
 let resizeTimer = 0;
-addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { measureHeader(); redrawWeb(); drawBackdrop(); }, 120); });
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureHeader(); redrawWeb(); });
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { measureHeader(); redrawWeb(); drawBackdrop(); syncInds(); }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureHeader(); redrawWeb(); syncInds(); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawBackdrop);
 new MutationObserver(drawBackdrop).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 measureHeader();
 drawBackdrop();
+buildLoaderWeb();
 loadSample('contract', true);
+if (reduceMotion) finishBoot();
+else {
+  // keep the loader up long enough to see the web being spun, and until fonts are in
+  const fontsIn = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2200))]) : Promise.resolve();
+  fontsIn.then(() => setTimeout(finishBoot, Math.max(0, 1700 - performance.now())));
+  setTimeout(finishBoot, 4000); // safety net
+}
 </script>
 </body>
 </html>
