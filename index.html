@@ -7,45 +7,55 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@400;700&display=swap">
 <style>
-/* Layout: a paper sheet on a cool desk; the spider walks over the sheet and spins its web there.
-   The catch (facts, summary, keywords) sits in a sticky panel on the right, or in a bottom sheet on phones. */
+/* Layout: a sheet of paper lies on a fog-blue desk under a faint spider web. A big spider walks the sheet
+   and spins its web over the text; the catch gathers in a sticky panel (a bottom sheet on phones). */
 :root {
-  --desk: #e6eae7;
-  --paper: #ffffff;
-  --ink: #1b2220;
-  --muted: #5d6965;
-  --line: #d3dad6;
-  --thread: #1a86a8;
-  --spider: #141918;
+  --desk: #e8ecf1;
+  --desk-2: #d9e1ea;
+  --paper: #fffdf8;
+  --ink: #14171d;
+  --muted: #5a6371;
+  --line: #d6dce4;
+  --silk: #9fabbb;
+  --thread: #3c6b9c;
+  --dew: #d48b16;
+  --glint: #ffffff;
+  --spider: #1a1c22;
+  --spider-hi: #545a68;
+  --spider-mark: #e2a43b;
+  --eye: #f6c75c;
   --c1: #1d8048; --c2: #7444cc; --c3: #c96612; --c4: #c02b78;
   --k1: #2a67cf; --k2: #0d8a7e; --k3: #c13b2b; --k4: #8f620c; --k5: #4c41bd; --k6: #577519;
-  --hl: rgb(255 214 51 / .55);
+  --hl: rgb(255 210 70 / .5);
   --c-search: #0596bb;
-  --shadow: rgb(20 30 28 / .18);
+  --shadow: rgb(25 35 50 / .2);
   --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-doc: "PT Serif", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --hdr: 60px;
+  --hdr: 64px;
+  --sp: 100px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --desk: #0f1312; --paper: #181d1c; --ink: #e2e8e5; --muted: #95a29d; --line: #2a3331;
-    --thread: #4dbfe0; --spider: #e3ebe7;
+    --desk: #0a0d13; --desk-2: #121a27; --paper: #151a23; --ink: #e8ecf3; --muted: #8f99aa; --line: #262f3d;
+    --silk: #2f3b4f; --thread: #8db4e0; --dew: #f1b44c; --glint: #ffffff;
+    --spider: #d7dde7; --spider-hi: #ffffff; --spider-mark: #f1b44c; --eye: #ffcf66;
     --c1: #4cc282; --c2: #a98bf3; --c3: #ef9348; --c4: #ec6aa8;
     --k1: #6d9df2; --k2: #3fc3b4; --k3: #ef7b6b; --k4: #d6a643; --k5: #918af2; --k6: #9fc055;
-    --hl: rgb(255 205 60 / .28); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .5);
+    --hl: rgb(255 200 70 / .26); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .55);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --desk: #0f1312; --paper: #181d1c; --ink: #e2e8e5; --muted: #95a29d; --line: #2a3331;
-  --thread: #4dbfe0; --spider: #e3ebe7;
+  --desk: #0a0d13; --desk-2: #121a27; --paper: #151a23; --ink: #e8ecf3; --muted: #8f99aa; --line: #262f3d;
+  --silk: #2f3b4f; --thread: #8db4e0; --dew: #f1b44c; --glint: #ffffff;
+  --spider: #d7dde7; --spider-hi: #ffffff; --spider-mark: #f1b44c; --eye: #ffcf66;
   --c1: #4cc282; --c2: #a98bf3; --c3: #ef9348; --c4: #ec6aa8;
   --k1: #6d9df2; --k2: #3fc3b4; --k3: #ef7b6b; --k4: #d6a643; --k5: #918af2; --k6: #9fc055;
-  --hl: rgb(255 205 60 / .28); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .5);
+  --hl: rgb(255 200 70 / .26); --c-search: #3cc7e9; --shadow: rgb(0 0 0 / .55);
   color-scheme: dark;
 }
 
@@ -53,21 +63,30 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
-  background: var(--desk);
+  background: radial-gradient(1100px 620px at 92% -8%, var(--desk-2), transparent 70%), var(--desk);
+  background-attachment: fixed;
   color: var(--ink);
   font: 15px/1.5 var(--font-ui);
   -webkit-font-smoothing: antialiased;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
+  min-height: 100vh;
 }
 body::before {
   content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
   z-index: 10; background: var(--paper);
 }
+#backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 button, select, input, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--thread); outline-offset: 2px; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.spider-art { color: var(--spider); display: block; }
+.spider-art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.sp-mark { fill: var(--spider-mark); }
+.sp-sheen { fill: var(--glint); opacity: .16; }
+.sp-eye { fill: var(--eye); }
+.ico { width: 15px; height: 15px; flex: none; }
 
 /* ---------- Header ---------- */
 .top {
@@ -75,343 +94,429 @@ button, select, input, textarea { font: inherit; color: inherit; }
   margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 10px;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
+  padding-block: 12px;
+  background: color-mix(in srgb, var(--paper) 80%, transparent);
+  -webkit-backdrop-filter: saturate(1.3) blur(14px); backdrop-filter: saturate(1.3) blur(14px);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
 }
-.top-in {
-  max-width: 1240px; margin: 0 auto;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
-}
-.brand {
-  display: flex; align-items: center; gap: 10px; margin-right: auto;
-  font: 600 16px/1 var(--font-display); letter-spacing: -.01em; white-space: nowrap;
-}
-.brand svg { width: 26px; height: 26px; color: var(--spider); }
-.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.btn, .sel {
-  display: inline-flex; align-items: center; gap: 6px;
-  min-height: 36px; padding: 6px 12px;
-  border: 1px solid var(--line); border-radius: 6px;
+.top-in { max-width: 1260px; margin: 0 auto; display: flex; align-items: center; gap: 12px 18px; }
+.brand { display: flex; align-items: center; gap: 12px; margin-right: auto; min-width: 0; }
+.brand-mark { position: relative; width: 34px; height: 34px; flex: none; transform-origin: 50% -16px; animation: swing 3.2s ease-in-out infinite alternate; }
+.brand-mark::before { content: ""; position: absolute; left: 50%; bottom: 60%; height: 40px; width: 1px; background: var(--silk); }
+.brand-mark .spider-art { width: 100%; height: 100%; transform: rotate(-90deg); }
+@keyframes swing { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+.wordmark { font: 700 17px/1 var(--font-display); letter-spacing: -.02em; white-space: nowrap; }
+.wordmark span { font-weight: 400; color: var(--muted); }
+.actions { display: flex; gap: 8px; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 38px; padding: 7px 14px;
+  border: 1px solid var(--line); border-radius: 10px;
   background: var(--paper); color: var(--ink);
-  font: 500 14px/1.2 var(--font-ui); cursor: pointer;
+  font: 500 14px/1.2 var(--font-ui); cursor: pointer; white-space: nowrap;
+  transition: border-color .15s, background-color .15s, transform .1s;
 }
-.btn:hover, .sel:hover { border-color: var(--muted); }
+.btn:hover { border-color: color-mix(in srgb, var(--thread) 55%, var(--line)); }
+.btn:active { transform: translateY(1px); }
 .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.btn.small { min-height: 30px; padding: 4px 10px; font-size: 13px; }
-.btn.ghost { border-color: transparent; background: transparent; }
-.btn:disabled { opacity: .45; cursor: default; }
-.sel { padding-right: 8px; }
+.btn.primary:hover { background: color-mix(in srgb, var(--ink) 86%, var(--thread)); }
+.btn.small { min-height: 32px; padding: 5px 11px; font-size: 13px; border-radius: 9px; }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
 
 /* ---------- Layout ---------- */
 .layout {
-  max-width: 1240px; margin: 0 auto;
-  display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px;
-  padding-block: 18px calc(46vh + 24px);
+  max-width: 1260px; margin: 0 auto;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px;
+  padding-block: 22px calc(46vh + 24px);
 }
+.main-col { display: grid; gap: 18px; min-width: 0; align-content: start; }
 @media (min-width: 980px) {
-  .layout { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; padding-block: 24px 48px; }
+  .layout { grid-template-columns: minmax(0, 1fr) 390px; align-items: start; padding-block: 28px 56px; }
+}
+
+/* ---------- Intro / drop card ---------- */
+.intro {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px 22px; align-items: center;
+  padding: 22px 24px;
+  border: 1.5px dashed color-mix(in srgb, var(--thread) 45%, var(--line));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.intro-spider { width: 64px; height: 64px; position: relative; align-self: start; margin-top: 10px; transform-origin: 50% -22px; animation: swing 3.8s ease-in-out infinite alternate; }
+.intro-spider::before { content: ""; position: absolute; left: 50%; bottom: 62%; height: 60px; width: 1px; background: var(--silk); }
+.intro-spider .spider-art { width: 100%; height: 100%; transform: rotate(-90deg); }
+.intro-title { margin: 0; font: 700 clamp(17px, 2.4vw, 22px)/1.2 var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
+.intro-sub { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.intro-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.intro-samples { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 13px; color: var(--muted); }
+.sample-btn {
+  border: 1px solid var(--line); background: var(--paper); border-radius: 999px; cursor: pointer;
+  padding: 4px 12px; font-size: 13px; font-weight: 500; color: var(--ink);
+}
+.sample-btn:hover { border-color: var(--thread); }
+.sample-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.intro.compact { grid-template-columns: minmax(0, 1fr) auto; padding: 12px 16px; border-style: solid; }
+.intro.compact .intro-spider, .intro.compact .intro-sub { display: none; }
+.intro.compact .intro-title { font-size: 15px; }
+.intro.compact .intro-samples { padding-top: 10px; }
+@media (max-width: 640px) {
+  .intro { grid-template-columns: auto minmax(0, 1fr); padding: 18px; gap: 12px 16px; }
+  .intro-spider { width: 52px; height: 52px; }
+  .intro-actions { grid-column: 1 / -1; }
+  .intro-actions .btn { flex: 1; }
+  .intro.compact { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- Sheet (document) ---------- */
 .sheet {
   position: relative; min-width: 0;
   background: var(--paper);
-  border: 1px solid var(--line); border-radius: 3px;
-  box-shadow: 0 18px 40px -26px var(--shadow);
-  padding: clamp(18px, 5vw, 56px);
+  border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 1px 0 var(--line), 0 34px 70px -44px var(--shadow);
+  padding: clamp(20px, 5vw, 60px);
 }
-.doc-head {
-  max-width: 68ch; margin: 0 auto 22px; padding-bottom: 14px;
-  border-bottom: 1px dashed var(--line);
-  display: grid; gap: 6px;
-}
-.doc-title { font: 600 clamp(17px, 2.4vw, 21px)/1.25 var(--font-display); margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
-.doc-meta { font: 500 12px/1.4 var(--font-mono); color: var(--muted); letter-spacing: .02em; }
-.sample-note {
-  display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
-  font-size: 13px; color: var(--muted);
-}
-.sample-note b { color: var(--ink); font-weight: 600; }
-.doc {
-  max-width: 68ch; margin: 0 auto;
-  font: 17px/1.65 var(--font-doc);
-  overflow-wrap: break-word;
-}
-.doc p { margin: 0 0 .85em; }
-.doc h3 { font: 600 15px/1.4 var(--font-ui); letter-spacing: .01em; margin: 1.5em 0 .55em; text-wrap: balance; }
+.doc-head { max-width: 68ch; margin: 0 auto 26px; display: grid; gap: 12px; }
+.eyebrow { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--dew); }
+.doc-title { font: 700 clamp(19px, 2.6vw, 26px)/1.22 var(--font-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.doc-meta span { font: 500 11.5px/1 var(--font-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; }
+.doc { max-width: 68ch; margin: 0 auto; font: 17.5px/1.7 var(--font-doc); overflow-wrap: break-word; }
+.doc p { margin: 0 0 .9em; }
+.doc h3 { font: 700 15px/1.4 var(--font-display); letter-spacing: -.01em; margin: 1.7em 0 .6em; text-wrap: balance; }
 .doc h3:first-child { margin-top: 0; }
 .sheet-foot {
-  max-width: 68ch; margin: 26px auto 0; padding-top: 12px;
+  max-width: 68ch; margin: 30px auto 0; padding-top: 14px;
   border-top: 1px dashed var(--line);
   font-size: 12.5px; color: var(--muted);
 }
 
-mark { background: none; color: inherit; padding: 0; border-radius: 2px; transition: background-color .3s, box-shadow .3s; }
+mark { background: none; color: inherit; padding: 0; border-radius: 3px; transition: background-color .3s, box-shadow .3s; }
 mark.lit.v {
   background: color-mix(in srgb, var(--c) 15%, transparent);
   box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--c) 75%, transparent);
 }
-mark.lit.t { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--c) 75%, transparent); }
+mark.lit.t { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--c) 70%, transparent); }
 mark.off { background: none !important; box-shadow: none !important; }
 .s.key.lit {
-  background-image: linear-gradient(transparent 55%, var(--hl) 55%, var(--hl) 94%, transparent 94%);
+  background-image: linear-gradient(transparent 56%, var(--hl) 56%, var(--hl) 93%, transparent 93%);
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
-.s.found { background-color: color-mix(in srgb, var(--c-search) 18%, transparent); border-radius: 2px; }
+.s.found { background-color: color-mix(in srgb, var(--c-search) 18%, transparent); border-radius: 3px; }
 .ping { animation: ping .5s ease-out; }
 .flash { animation: ping .7s ease-out 3; }
 @keyframes ping {
-  from { outline: 2px solid var(--thread); outline-offset: 5px; }
+  from { outline: 2px solid var(--dew); outline-offset: 6px; }
   to { outline: 2px solid transparent; outline-offset: 0; }
 }
 
 #web { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
-#web .edge { stroke: var(--thread); stroke-width: 1; opacity: .55; }
-#web .edge.mesh { opacity: .25; }
+#web .edge { stroke: var(--thread); stroke-width: 1; opacity: .5; }
+#web .edge.mesh { opacity: .22; }
 #web .edge.search { stroke: var(--c-search); stroke-width: 1.4; opacity: .85; }
-#web .node { stroke: var(--paper); stroke-width: 1; }
-#web #drag { stroke: var(--thread); stroke-width: 1; opacity: .75; stroke-dasharray: 3 3; }
+#web .dew-glint { fill: var(--glint); opacity: .8; }
+#web .dew-body { stroke: var(--paper); stroke-width: 1; }
+#web #drag { stroke: var(--thread); stroke-width: 1.2; opacity: .8; }
 
 #spider {
-  position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px;
-  z-index: 3; pointer-events: none; color: var(--spider); will-change: transform;
-  filter: drop-shadow(0 1px 1.5px var(--shadow));
+  position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none;
+  width: var(--sp); height: var(--sp); margin: calc(var(--sp) / -2) 0 0 calc(var(--sp) / -2);
+  will-change: transform;
+  filter: drop-shadow(0 7px 6px var(--shadow));
 }
-#spider svg { width: 30px; height: 30px; display: block; overflow: visible; }
-#spider .leg { transform-box: view-box; transform-origin: 0 0; }
-#spider.walking .la { animation: legA .16s ease-in-out infinite alternate; }
-#spider.walking .lb { animation: legB .16s ease-in-out infinite alternate; }
-@keyframes legA { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
-@keyframes legB { from { transform: rotate(9deg); } to { transform: rotate(-9deg); } }
+#spider .spider-art { width: 100%; height: 100%; }
+.leg { transform-box: fill-box; }
+.o-lb { transform-origin: left bottom; } .o-rb { transform-origin: right bottom; }
+.o-lt { transform-origin: left top; } .o-rt { transform-origin: right top; }
+#spider.walking .ga { animation: gait .19s ease-in-out infinite alternate; }
+#spider.walking .gb { animation: gait .19s ease-in-out infinite alternate-reverse; }
+#spider.walking .sp-body { animation: bob .19s ease-in-out infinite alternate; }
+#spider:not(.walking) .sp-body { transform-box: fill-box; transform-origin: center; animation: breathe 2.6s ease-in-out infinite; }
+#spider:not(.walking) .ga { animation: twitch 5s ease-in-out infinite; }
+@keyframes gait { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+@keyframes bob { from { transform: translateX(-.7px); } to { transform: translateX(.7px); } }
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes twitch { 0%, 92%, 100% { transform: rotate(0); } 95% { transform: rotate(-8deg); } }
 
 /* ---------- Panel ---------- */
 .panel {
   min-width: 0; display: flex; flex-direction: column;
-  background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: 0 30px 60px -44px var(--shadow);
+  overflow: hidden;
 }
 @media (min-width: 980px) {
-  .panel { position: sticky; top: calc(var(--hdr) + 16px); max-height: calc(100vh - var(--hdr) - 32px); }
+  .panel { position: sticky; top: calc(var(--hdr) + 18px); max-height: calc(100vh - var(--hdr) - 36px); }
   .panel .grab { display: none; }
-}
-@media (max-width: 979.98px) {
-  .panel {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-    height: 44vh; border-radius: 14px 14px 0 0; border-bottom: 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
-    box-shadow: 0 -12px 30px -14px var(--shadow);
-    transition: height .25s ease;
-  }
-  .panel.open { height: 82vh; }
-  .panel:not(.open) .search { display: none; }
-  .top { position: relative; top: auto; padding-block: 8px; }
-  .top-in { gap: 8px; }
-  .actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; }
-  .actions .btn, .actions .sel { flex: none; min-height: 34px; font-size: 13.5px; }
 }
 .grab {
   display: flex; justify-content: center; width: 100%;
-  padding: 8px 0 2px; border: 0; background: none; cursor: pointer;
+  padding: 9px 0 3px; border: 0; background: none; cursor: pointer;
 }
-.grab span { width: 42px; height: 4px; border-radius: 4px; background: var(--line); }
-.phead { padding: 12px 16px 8px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; border-bottom: 1px solid var(--line); }
-.found-row { display: flex; align-items: baseline; gap: 8px 10px; }
-.found-word { font: 600 17px/1.1 var(--font-display); }
-.found-name { font-weight: 600; font-size: 14px; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 0; }
-.found-count { font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
-.found-count b { color: var(--ink); font-size: 15px; }
-.progress { height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
-.progress i { display: block; height: 100%; width: 0; background: var(--thread); transition: width .2s linear; }
-.prow { display: flex; flex-wrap: wrap; gap: 6px; }
-.search { display: flex; gap: 6px; }
+.grab span { width: 44px; height: 5px; border-radius: 5px; background: var(--line); }
+.phead { padding: 16px 18px 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; border-bottom: 1px solid var(--line); }
+.tally { display: flex; align-items: flex-end; gap: 12px; min-width: 0; }
+.tally-num { font: 700 46px/.86 var(--font-display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.tally-txt { display: grid; gap: 3px; min-width: 0; padding-bottom: 2px; }
+.tally-label { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--dew); }
+.tally-of { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress { position: relative; height: 2px; background: var(--line); border-radius: 2px; margin: 2px 5px 4px 0; }
+.progress i { position: relative; display: block; height: 100%; width: 0; background: var(--thread); border-radius: 2px; transition: width .2s linear; }
+.progress i::after {
+  content: ""; position: absolute; right: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--glint), var(--dew) 58%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dew) 22%, transparent);
+}
+.prow { display: flex; gap: 6px; }
+.prow .btn { flex: 1 1 0; min-width: 0; padding-inline: 8px; }
+.modes { display: flex; gap: 3px; padding: 3px; background: var(--desk); border-radius: 11px; overflow-x: auto; }
+.mode {
+  flex: 1 0 auto; border: 0; background: none; cursor: pointer; white-space: nowrap;
+  padding: 6px 8px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--muted);
+}
+.mode[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 1px 4px var(--shadow); }
+.mode.detected { color: var(--ink); }
+.mode.detected::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; vertical-align: 2px; border-radius: 50%; background: var(--dew); }
+.search { position: relative; display: flex; gap: 6px; }
+.search .ico { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 .search input {
-  flex: 1; min-width: 0; min-height: 34px; padding: 5px 10px;
-  border: 1px solid var(--line); border-radius: 6px; background: var(--desk);
+  flex: 1; min-width: 0; min-height: 36px; padding: 6px 10px 6px 34px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--desk);
 }
-.tabs { display: flex; gap: 2px; padding: 0 10px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs { display: flex; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tab {
-  border: 0; background: none; padding: 9px 8px 8px; cursor: pointer; white-space: nowrap;
-  font-weight: 500; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
+  border: 0; background: none; padding: 11px 8px 9px; cursor: pointer; white-space: nowrap;
+  font-weight: 600; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
 }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-.tab .mono { font-size: 12px; margin-left: 3px; }
-.pbody { flex: 1; min-height: 0; overflow: auto; padding: 10px 12px 16px; overscroll-behavior: contain; }
-.mode-note { margin: 2px 4px 10px; font-size: 12.5px; color: var(--muted); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--dew); }
+.tab .mono { font-size: 11.5px; margin-left: 4px; font-weight: 500; }
+.pbody { flex: 1; min-height: 0; overflow: auto; padding: 12px 12px 18px; overscroll-behavior: contain; }
+.mode-note { margin: 2px 4px 12px; font-size: 12.5px; color: var(--muted); }
 .mode-note b { color: var(--ink); font-weight: 600; }
 
-.pills { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 8px; }
+@media (max-width: 979.98px) {
+  :root { --sp: 74px; }
+  .panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    height: 44vh; border-radius: 20px 20px 0 0; border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+    box-shadow: 0 -16px 40px -18px var(--shadow);
+    transition: height .28s ease;
+  }
+  .panel.open { height: 84vh; }
+  .phead { padding: 6px 16px 10px; gap: 10px; }
+  .tally-num { font-size: 34px; }
+  .panel:not(.open) .search, .panel:not(.open) .modes { display: none; }
+  .top { position: relative; top: auto; padding-block: 10px; }
+  .top .btn { min-height: 34px; padding: 6px 11px; font-size: 13.5px; }
+  .top .btn .lbl-long { display: none; }
+}
+
+.pills { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 10px; }
 .pill {
   display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
   border: 1px solid var(--line); background: var(--paper); border-radius: 999px;
-  padding: 3px 10px; font-size: 12.5px; cursor: pointer;
+  padding: 4px 11px; font-size: 12.5px; cursor: pointer;
 }
 .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-.pill .mono { font-size: 11.5px; color: var(--muted); }
+.pill .mono { font-size: 11px; color: var(--muted); }
 .pill[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .pill[aria-pressed="true"] .mono { color: inherit; }
 
-.facts, .summary { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .fact {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; align-items: baseline;
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; align-items: center;
   width: 100%; text-align: left; cursor: pointer;
-  background: none; border: 0; border-left: 3px solid var(--c);
-  padding: 7px 8px 7px 10px; border-radius: 0 4px 4px 0;
+  background: none; border: 1px solid transparent; border-radius: 10px;
+  padding: 9px 10px 9px 16px;
+  transition: background-color .15s, border-color .15s;
 }
-.fact:hover { background: color-mix(in srgb, var(--c) 9%, transparent); }
-.fact .val { font: 700 14px/1.35 var(--font-mono); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fact .tag { font: 600 10px/1.6 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--c); white-space: nowrap; }
+.fact::before { content: ""; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--c); }
+.fact:hover { background: color-mix(in srgb, var(--c) 7%, transparent); border-color: color-mix(in srgb, var(--c) 22%, transparent); }
+.fact .val { font: 700 14.5px/1.35 var(--font-mono); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fact .tag {
+  font: 600 10px/1.5 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+  color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); padding: 2px 8px; border-radius: 999px;
+}
 .fact .ctx {
-  grid-column: 1 / -1; font-size: 13px; line-height: 1.4; color: var(--muted);
+  grid-column: 1 / -1; font-size: 13px; line-height: 1.45; color: var(--muted);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+.fact.sent { align-items: start; }
 .fact.sent .ctx { grid-column: 1; grid-row: 1; color: var(--ink); -webkit-line-clamp: 3; }
+.fact.sent .tag { margin-top: 1px; }
 .fact.sent .ctx b { color: var(--c); }
 .slot { display: inline-block; width: 16px; height: 3px; border-radius: 2px; background: var(--c); vertical-align: middle; }
-.empty { color: var(--muted); font-size: 13px; padding: 8px 4px; }
+.empty { color: var(--muted); font-size: 13px; padding: 8px 4px; list-style: none; }
 
-.sum-head { font: 600 11px/1.4 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 12px 4px 4px; }
+.sum-list { display: grid; gap: 4px; counter-reset: k; }
+.sum-head { font: 600 11px/1.4 var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 14px 6px 2px; }
 .sum-head:first-child { margin-top: 0; }
 .sum-item {
-  width: 100%; text-align: left; cursor: pointer; border: 0; background: none;
-  padding: 8px 10px; border-radius: 4px; font: 15px/1.5 var(--font-doc);
-  border-left: 3px solid var(--hl);
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: start;
+  width: 100%; text-align: left; cursor: pointer; border: 1px solid transparent; background: none;
+  padding: 9px 10px 9px 6px; border-radius: 10px; font: 15px/1.55 var(--font-doc);
 }
-.sum-item:hover { background: color-mix(in srgb, var(--thread) 7%, transparent); }
+.sum-item::before {
+  counter-increment: k; content: counter(k);
+  font: 700 12px/26px var(--font-display); text-align: center; color: var(--dew);
+  width: 26px; height: 26px; border-radius: 50%; background: color-mix(in srgb, var(--dew) 13%, transparent);
+}
+.sum-item:hover { background: color-mix(in srgb, var(--dew) 7%, transparent); border-color: color-mix(in srgb, var(--dew) 22%, transparent); }
 
 .search-block { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
 .search-title { display: flex; align-items: center; gap: 8px; margin: 0 4px 6px; font-size: 13px; }
 .search-title span { flex: 1; min-width: 0; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; }
 .chip {
-  border: 1px solid var(--line); background: var(--paper); border-radius: 4px; cursor: pointer;
-  padding: 4px 9px; font-size: 14px;
+  border: 1px solid var(--line); background: var(--paper); border-radius: 999px; cursor: pointer;
+  padding: 4px 12px; line-height: 1.3; font-family: var(--font-doc);
 }
-.chip:hover { border-color: var(--thread); }
-.chip .mono { font-size: 11px; color: var(--muted); margin-left: 4px; }
+.chip:hover { border-color: var(--thread); color: var(--thread); }
+.chip .mono { font-size: 11px; color: var(--muted); margin-left: 5px; }
 
 /* ---------- Overlays ---------- */
 #toast {
   position: fixed; z-index: 40; left: 50%; transform: translateX(-50%);
-  top: calc(var(--hdr) + 12px + env(safe-area-inset-top, 0px));
+  top: calc(var(--hdr) + 14px + env(safe-area-inset-top, 0px));
   max-width: min(520px, calc(100vw - 32px));
   background: var(--ink); color: var(--paper);
-  padding: 9px 14px; border-radius: 6px; font-size: 14px; box-shadow: 0 10px 30px -10px var(--shadow);
+  padding: 10px 16px; border-radius: 12px; font-size: 14px; box-shadow: 0 14px 34px -12px var(--shadow);
 }
-#toast.err { background: var(--k3); color: #fff; }
+#toast.err { background: var(--k3); color: var(--glint); }
 .drop {
-  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
-  background: color-mix(in srgb, var(--desk) 82%, transparent);
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; gap: 12px; align-content: center;
+  background: color-mix(in srgb, var(--desk) 84%, transparent);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   border: 3px dashed var(--thread);
-  font: 600 18px/1.3 var(--font-display); text-align: center; padding: 24px;
+  font: 700 20px/1.3 var(--font-display); text-align: center; padding: 24px;
 }
+.drop .spider-art { width: 96px; height: 96px; }
 .modal {
   position: fixed; inset: 0; z-index: 45; display: grid; place-items: center;
-  background: rgb(0 0 0 / .35);
+  background: rgb(0 0 0 / .4);
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
 .modal-card {
-  width: min(680px, 100%); background: var(--paper); border-radius: 8px; border: 1px solid var(--line);
-  padding: 18px; display: grid; gap: 12px; box-shadow: 0 20px 60px -20px var(--shadow);
+  width: min(680px, 100%); background: var(--paper); border-radius: 16px; border: 1px solid var(--line);
+  padding: 20px; display: grid; gap: 12px; box-shadow: 0 30px 80px -24px var(--shadow);
 }
-.modal-card h2 { margin: 0; font: 600 17px/1.3 var(--font-display); }
+.modal-card h2 { margin: 0; font: 700 18px/1.3 var(--font-display); letter-spacing: -.02em; }
 .modal-card textarea {
-  width: 100%; min-height: 40vh; resize: vertical; padding: 10px;
-  border: 1px solid var(--line); border-radius: 6px; background: var(--desk);
-  font: 15px/1.5 var(--font-doc);
+  width: 100%; min-height: 40vh; resize: vertical; padding: 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--desk);
+  font: 15px/1.55 var(--font-doc);
 }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ping, .flash { animation: none; }
-  #spider.walking .la, #spider.walking .lb { animation: none; }
+  .ping, .flash, .brand-mark, .intro-spider { animation: none; }
+  #spider .ga, #spider .gb, #spider .sp-body { animation: none !important; }
   .panel { transition: none; }
 }
 </style>
 </head>
 <body>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="spider-shape" viewBox="-16 -16 32 32">
-    <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="3,-2 7,-8 12,-10"/><polyline points="2,-2.5 4,-9 6,-14"/>
-      <polyline points="0,-2.5 -2,-9 -5,-13"/><polyline points="-1,-2 -6,-7 -11,-9"/>
-      <polyline points="3,2 7,8 12,10"/><polyline points="2,2.5 4,9 6,14"/>
-      <polyline points="0,2.5 -2,9 -5,13"/><polyline points="-1,2 -6,7 -11,9"/>
-    </g>
-    <ellipse cx="-4.5" cy="0" rx="6" ry="4.6" fill="currentColor"/>
-    <circle cx="3.5" cy="0" r="3.2" fill="currentColor"/>
-  </symbol>
+<canvas id="backdrop" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="g-abd" cx="38%" cy="30%" r="80%">
+      <stop offset="0" style="stop-color: var(--spider-hi)"/>
+      <stop offset="1" style="stop-color: var(--spider)"/>
+    </radialGradient>
+    <radialGradient id="g-dew" cx="35%" cy="30%" r="75%">
+      <stop offset="0" style="stop-color: var(--glint)"/>
+      <stop offset=".45" style="stop-color: var(--glint); stop-opacity: 0"/>
+    </radialGradient>
+  </defs>
 </svg>
 
 <header class="top" id="top">
   <div class="top-in">
-    <div class="brand"><svg aria-hidden="true"><use href="#spider-shape"/></svg>Паук-конспектор</div>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><div class="spider-art"></div></div>
+      <div class="wordmark">Паук<span>·конспектор</span></div>
+    </div>
     <div class="actions">
-      <label class="btn primary" for="file">Открыть файл</label>
-      <input class="vh" id="file" type="file" accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm,.csv,.log,text/plain,text/html,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-      <button class="btn" id="btnPaste" type="button">Вставить текст</button>
-      <label class="vh" for="sample">Пример документа</label>
-      <select class="sel" id="sample">
-        <option value="contract">Пример: договор</option>
-        <option value="report">Пример: отчёт</option>
-        <option value="paper">Пример: статья</option>
-      </select>
-      <label class="vh" for="mode">Режим разбора</label>
-      <select class="sel" id="mode">
-        <option value="auto">Режим: авто</option>
-        <option value="contract">Договор</option>
-        <option value="report">Отчёт</option>
-        <option value="paper">Статья</option>
-        <option value="general">Общий</option>
-      </select>
+      <label class="btn primary" for="file">
+        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="11" x2="8" y2="2"/><polyline points="4.5,5.5 8,2 11.5,5.5"/><line x1="2.5" y1="14" x2="13.5" y2="14"/></svg>
+        <span>Открыть<span class="lbl-long"> файл</span></span>
+      </label>
+      <button class="btn" id="btnPaste" type="button"><span>Вставить<span class="lbl-long"> текст</span></span></button>
     </div>
   </div>
 </header>
+<input class="vh" id="file" type="file" accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm,.csv,.log,text/plain,text/html,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
 
 <main class="layout">
-  <article class="sheet" id="sheet">
-    <div class="doc-head">
-      <h1 class="doc-title" id="docTitle">Документ</h1>
-      <div class="doc-meta" id="docMeta"></div>
-      <div class="sample-note" id="sampleNote" hidden>
-        <span><b>Это пример.</b> Откройте свой PDF, DOCX или TXT, вставьте текст или перетащите файл на страницу.</span>
+  <div class="main-col">
+    <section class="intro" id="intro" aria-labelledby="introTitle">
+      <div class="intro-spider" aria-hidden="true"><div class="spider-art"></div></div>
+      <div>
+        <h2 class="intro-title" id="introTitle">Перетащите сюда документ</h2>
+        <p class="intro-sub">PDF, DOCX, TXT, MD или HTML. Паук прочитает его, подсветит суммы, даты и сроки и соберёт конспект. Файл остаётся на вашем устройстве.</p>
       </div>
-    </div>
-    <div class="doc" id="doc"></div>
-    <p class="sheet-foot">Текст разбирается прямо в браузере, файл никуда не отправляется. Конспект собран из предложений самого документа: паук ничего не пересказывает и не придумывает.</p>
-    <svg id="web" aria-hidden="true"><line id="drag" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/></svg>
-    <div id="spider" hidden aria-hidden="true">
-      <svg viewBox="-16 -16 32 32">
-        <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <polyline class="leg la" points="3,-2 7,-8 12,-10"/><polyline class="leg lb" points="2,-2.5 4,-9 6,-14"/>
-          <polyline class="leg la" points="0,-2.5 -2,-9 -5,-13"/><polyline class="leg lb" points="-1,-2 -6,-7 -11,-9"/>
-          <polyline class="leg lb" points="3,2 7,8 12,10"/><polyline class="leg la" points="2,2.5 4,9 6,14"/>
-          <polyline class="leg lb" points="0,2.5 -2,9 -5,13"/><polyline class="leg la" points="-1,2 -6,7 -11,9"/>
-        </g>
-        <ellipse cx="-4.5" cy="0" rx="6" ry="4.6" fill="currentColor"/>
-        <circle cx="3.5" cy="0" r="3.2" fill="currentColor"/>
-        <circle cx="5.2" cy="-1.2" r=".8" fill="var(--paper)"/><circle cx="5.2" cy="1.2" r=".8" fill="var(--paper)"/>
-      </svg>
-    </div>
-  </article>
+      <div class="intro-actions">
+        <label class="btn primary" for="file">Выбрать файл</label>
+        <button class="btn" id="btnPaste2" type="button">Вставить текст</button>
+      </div>
+      <div class="intro-samples" role="group" aria-label="Примеры документов">
+        <span>Или посмотрите пример:</span>
+        <button class="sample-btn" type="button" data-sample="contract">Договор</button>
+        <button class="sample-btn" type="button" data-sample="report">Отчёт</button>
+        <button class="sample-btn" type="button" data-sample="paper">Статья</button>
+      </div>
+    </section>
+
+    <article class="sheet" id="sheet">
+      <div class="doc-head">
+        <div class="eyebrow" id="docEyebrow">Документ</div>
+        <h1 class="doc-title" id="docTitle">Документ</h1>
+        <div class="doc-meta" id="docMeta"></div>
+      </div>
+      <div class="doc" id="doc"></div>
+      <p class="sheet-foot">Текст разбирается прямо в браузере, файл никуда не отправляется. Конспект собран из предложений самого документа: паук ничего не пересказывает и не придумывает.</p>
+      <svg id="web" aria-hidden="true"><line id="drag" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/></svg>
+      <div id="spider" hidden aria-hidden="true"><div class="spider-art"></div></div>
+    </article>
+  </div>
 
   <aside class="panel" id="panel" aria-label="Что нашёл паук">
     <button class="grab" id="grab" type="button" aria-expanded="false" aria-label="Развернуть панель"><span></span></button>
     <div class="phead">
-      <div class="found-row">
-        <span class="found-word">Найдено</span>
-        <span class="found-name" id="foundName"></span>
-        <span class="found-count mono"><b id="nFound">0</b> <span id="nOf"></span></span>
+      <div class="tally">
+        <div class="tally-num" id="nFound">0</div>
+        <div class="tally-txt">
+          <div class="tally-label">Найдено</div>
+          <div class="tally-of" id="nOf"></div>
+        </div>
       </div>
       <div class="progress" aria-hidden="true"><i id="prog"></i></div>
       <div class="prow">
-        <button class="btn small" id="btnRun" type="button">Пустить паука</button>
-        <button class="btn small" id="btnSkip" type="button">Показать всё</button>
-        <button class="btn small" id="btnCopy" type="button">Копировать</button>
+        <button class="btn small" id="btnRun" type="button">
+          <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><polygon points="4,2.5 13,8 4,13.5" fill="currentColor"/></svg><span class="lbl">Ещё раз</span>
+        </button>
+        <button class="btn small" id="btnSkip" type="button">
+          <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><polygon points="2.5,3 9,8 2.5,13" fill="currentColor"/><rect x="10.5" y="3" width="2.4" height="10" rx="1" fill="currentColor"/></svg>Всё сразу
+        </button>
+        <button class="btn small" id="btnCopy" type="button">
+          <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.8"/><path d="M3 10.5V3.8C3 3.1 3.6 2.5 4.3 2.5H10.5"/></svg>Копировать
+        </button>
+      </div>
+      <div class="modes" id="modes" role="group" aria-label="Режим разбора">
+        <button class="mode" type="button" data-mode="auto" aria-pressed="true">Авто</button>
+        <button class="mode" type="button" data-mode="contract" aria-pressed="false">Договор</button>
+        <button class="mode" type="button" data-mode="report" aria-pressed="false">Отчёт</button>
+        <button class="mode" type="button" data-mode="paper" aria-pressed="false">Статья</button>
+        <button class="mode" type="button" data-mode="general" aria-pressed="false">Общий</button>
       </div>
       <form class="search" id="searchForm">
+        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
         <label class="vh" for="q">Поиск по документу</label>
         <input id="q" type="search" placeholder="Найти: штраф, срок, выручка…" autocomplete="off">
         <button class="btn small" type="submit">Найти</button>
@@ -430,10 +535,10 @@ mark.off { background: none !important; box-shadow: none !important; }
       </div>
       <div id="pane-sum" role="tabpanel" aria-labelledby="tab-sum" hidden>
         <p class="mode-note" id="modeNote"></p>
-        <div id="sumList"></div>
+        <div class="sum-list" id="sumList"></div>
       </div>
       <div id="pane-words" role="tabpanel" aria-labelledby="tab-words" hidden>
-        <p class="mode-note">Слова, которые чаще всего встречаются в документе. Нажмите, чтобы найти их в тексте.</p>
+        <p class="mode-note">Слова, которые чаще всего встречаются в документе. Чем крупнее, тем чаще. Нажмите, чтобы найти в тексте.</p>
         <div class="chips" id="chips"></div>
       </div>
     </div>
@@ -451,7 +556,7 @@ mark.off { background: none !important; box-shadow: none !important; }
     </div>
   </div>
 </div>
-<div class="drop" id="drop" hidden>Отпустите файл — паук его прочитает</div>
+<div class="drop" id="drop" hidden><div class="spider-art" aria-hidden="true"></div>Отпустите файл — паук его прочитает</div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
@@ -494,6 +599,63 @@ function toast(msg, isErr = false, ms = 3800) {
   t.textContent = msg; t.classList.toggle('err', isErr); t.hidden = false;
   clearTimeout(toastTimer);
   if (ms) toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+/* Spider drawing: head points to +x. Legs are split in two groups (a/b) that swing in turn, like a real gait. */
+const LEGS = [
+  ['a', 'lb', '8,-4 14,-14 24,-18 31,-15'], ['b', 'lb', '5,-5 8,-17 12,-26 16,-31'],
+  ['a', 'rb', '2,-5 -3,-16 -10,-24 -14,-30'], ['b', 'rb', '0,-4 -10,-12 -20,-17 -29,-17'],
+  ['b', 'lt', '8,4 14,14 24,18 31,15'], ['a', 'lt', '5,5 8,17 12,26 16,31'],
+  ['b', 'rt', '2,5 -3,16 -10,24 -14,30'], ['a', 'rt', '0,4 -10,12 -20,17 -29,17'],
+];
+const SPIDER_SVG = `<svg viewBox="-34 -34 68 68" aria-hidden="true" focusable="false">
+<g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${LEGS.map(([g, o, pts]) => `<polyline class="leg g${g} o-${o}" points="${pts}"/>`).join('')}</g>
+<g class="sp-body">
+<polyline points="10,-3 14.5,-6.5 17.5,-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<polyline points="10,3 14.5,6.5 17.5,5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<ellipse cx="-11" cy="0" rx="13.5" ry="10.5" fill="url(#g-abd)"/>
+<ellipse class="sp-mark" cx="-6.5" cy="0" rx="3.4" ry="1.7"/>
+<ellipse class="sp-mark" cx="-12.5" cy="-3.7" rx="2.3" ry="1.4"/><ellipse class="sp-mark" cx="-12.5" cy="3.7" rx="2.3" ry="1.4"/>
+<ellipse class="sp-mark" cx="-18.6" cy="0" rx="1.8" ry="1.3"/>
+<ellipse class="sp-sheen" cx="-14" cy="-5.2" rx="5.5" ry="2.2"/>
+<ellipse cx="5" cy="0" rx="7.8" ry="6.8" fill="currentColor"/>
+<ellipse cx="13" cy="-2" rx="2.2" ry="1.4" fill="currentColor"/><ellipse cx="13" cy="2" rx="2.2" ry="1.4" fill="currentColor"/>
+<circle class="sp-eye" cx="10" cy="-1.9" r="1.45"/><circle class="sp-eye" cx="10" cy="1.9" r="1.45"/>
+<circle class="sp-eye" cx="8" cy="-3.9" r=".85"/><circle class="sp-eye" cx="8" cy="3.9" r=".85"/>
+</g></svg>`;
+document.querySelectorAll('.spider-art').forEach(el => { el.innerHTML = SPIDER_SVG; });
+
+/* Faint orb web behind the page, drawn once per size or theme change. */
+function drawBackdrop() {
+  const c = $('#backdrop');
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = innerWidth, h = innerHeight;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  c.style.width = w + 'px'; c.style.height = h + 'px';
+  const g = c.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  g.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--silk').trim() || '#999';
+  g.lineWidth = 1;
+  const cx = w * 0.93, cy = h * 0.02, R = Math.hypot(w, h) * 0.8, N = 21;
+  const ang = Array.from({ length: N }, (_, i) => (i / N) * Math.PI * 2 + Math.sin(i * 2.3) * 0.06);
+  g.globalAlpha = 0.6;
+  g.beginPath();
+  ang.forEach(a => { g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); });
+  g.stroke();
+  g.globalAlpha = 0.42;
+  for (let r = 22, k = 0; r < R; r = r * 1.15 + 7, k++) {
+    g.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const a = ang[i % N], b = ang[(i + 1) % N] + (i + 1 === N ? Math.PI * 2 : 0);
+      const rr = r * (1 + Math.sin(i * 1.7 + k) * 0.025);
+      const x1 = cx + Math.cos(a) * rr, y1 = cy + Math.sin(a) * rr;
+      const x2 = cx + Math.cos(b) * rr, y2 = cy + Math.sin(b) * rr;
+      if (i === 0) g.moveTo(x1, y1);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      g.quadraticCurveTo(cx + (mx - cx) * 0.93, cy + (my - cy) * 0.93, x2, y2);
+    }
+    g.stroke();
+  }
 }
 
 /* =========================================================
@@ -822,8 +984,10 @@ function renderDoc() {
   layoutEpoch++;
 
   $('#docTitle').textContent = docName;
+  $('#docEyebrow').textContent = isSampleDoc ? 'Пример · ' + MODES[A.mode].label : MODES[A.mode].label;
   const mins = Math.max(1, Math.round(A.wordCount / 180));
-  $('#docMeta').textContent = `${fmt(A.blocks.length)} абз. · ${fmt(A.sents.length)} предл. · ${fmt(A.wordCount)} слов · ~${mins} мин чтения`;
+  $('#docMeta').innerHTML = [`${fmt(A.sents.length)} предл.`, `${fmt(A.wordCount)} слов`, `~${mins} мин чтения`]
+    .map(t => `<span>${esc(t)}</span>`).join('');
   sizeWeb();
 }
 
@@ -877,14 +1041,13 @@ function addEdge(a, b, cls, animate) {
 }
 
 function addNode(f) {
-  const c = document.createElementNS(SVGNS, 'circle');
-  c.setAttribute('class', 'node' + (f.kind === 'search' ? ' search' : ''));
-  c.setAttribute('r', f.kind === 'key' ? 3.5 : 2.6);
-  c.style.fill = f.cat.color;
+  const g = document.createElementNS(SVGNS, 'g');
+  const r = f.kind === 'key' ? 4.2 : 3.4;
+  g.innerHTML = `<circle class="dew-body" r="${r}" style="fill:${f.cat.color}"/><circle r="${r}" fill="url(#g-dew)"/>`;
   const p = anchor(f);
-  c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1));
-  web.appendChild(c);
-  nodes.push({ f, el: c });
+  g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+  web.appendChild(g);
+  nodes.push({ f, el: g });
 }
 
 function clearWeb(onlySearch = false) {
@@ -896,8 +1059,10 @@ function redrawWeb() {
   layoutEpoch++;
   sizeWeb();
   edges.forEach(e => setLine(e.el, anchor(e.a), anchor(e.b)));
-  nodes.forEach(n => { const p = anchor(n.f); n.el.setAttribute('cx', p.x.toFixed(1)); n.el.setAttribute('cy', p.y.toFixed(1)); });
-  if (lastVisited) { spPos = anchor(lastVisited); drawSpider(); }
+  nodes.forEach(n => { const p = anchor(n.f); n.el.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`); });
+  if (spResting) spPos = restPoint();
+  else if (lastVisited) spPos = anchor(lastVisited);
+  drawSpider();
 }
 
 function drawSpider() {
@@ -915,16 +1080,27 @@ function freeArea() {
 
 function followSpider() {
   if (Date.now() - lastUserScroll < 2500) return;
+  // scroll only when the spider nears the edge of the visible area
   const y = sheet.getBoundingClientRect().top + spPos.y;
   const fa = freeArea();
-  const diff = y - (fa.top + (fa.bottom - fa.top) * 0.45);
-  if (Math.abs(diff) > 30) window.scrollBy(0, diff * 0.1);
+  const lo = fa.top + 70, hi = fa.bottom - 110;
+  const diff = y > hi ? y - hi : y < lo ? y - lo : 0;
+  if (Math.abs(diff) > 2) window.scrollBy(0, diff * 0.18);
 }
+
+const turnToward = (a, target, k) => a + (((target - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * k;
+const spSize = () => spiderEl.offsetWidth || 60;
+function spinneret() { // rear end of the abdomen, where the thread comes out
+  const r = spSize() * 0.36;
+  return { x: spPos.x - Math.cos(spAng) * r, y: spPos.y - Math.sin(spAng) * r };
+}
+let spResting = false;
 
 function moveSpider(to, dur, token, from, done) {
   const start = { ...spPos }, t0 = performance.now();
   const dx = to.x - start.x, dy = to.y - start.y;
-  if (Math.hypot(dx, dy) > 3) spAng = Math.atan2(dy, dx);
+  const target = Math.hypot(dx, dy) > 3 ? Math.atan2(dy, dx) : spAng;
+  spResting = false;
   spiderEl.hidden = false;
   spiderEl.classList.add('walking');
   const fromPt = from ? anchor(from) : null;
@@ -933,8 +1109,9 @@ function moveSpider(to, dur, token, from, done) {
     const p = Math.min(1, (now - t0) / dur);
     const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
     spPos = { x: start.x + dx * e, y: start.y + dy * e };
+    spAng = turnToward(spAng, target, p >= 1 ? 1 : 0.35);
     drawSpider();
-    if (fromPt) { setLine(drag, fromPt, spPos); drag.setAttribute('visibility', 'visible'); }
+    if (fromPt) { setLine(drag, fromPt, spinneret()); drag.setAttribute('visibility', 'visible'); }
     if (tour.active) followSpider();
     if (p < 1) requestAnimationFrame(frame);
     else { drag.setAttribute('visibility', 'hidden'); done && done(); }
@@ -983,19 +1160,52 @@ function completeTour() {
   rest.forEach(anchor);              // read all positions first: one layout instead of thousands
   rest.forEach(f => visit(f, false));
   tour.opts.flush && tour.opts.flush();
-  endTour();
-  if (lastVisited) { spPos = anchor(lastVisited); drawSpider(); spiderEl.hidden = false; }
+  endTour(true);
 }
 
-function endTour() {
+function endTour(instant = false) {
   tour.active = false;
   spiderEl.classList.remove('walking');
   drag.setAttribute('visibility', 'hidden');
   tour.opts && tour.opts.onEnd && tour.opts.onEnd();
   updateButtons();
+  if (instant) restSpider(false);
+  else { const token = tour.token; setTimeout(() => { if (token === tour.token && !tour.active) restSpider(true); }, 260); }
 }
 
 function finishTour() { if (tour.active) completeTour(); }
+
+/* When idle, the spider steps aside onto the right margin so it never hides the text. */
+function restPoint() {
+  const y = lastVisited ? anchor(lastVisited).y : 36;
+  const padR = parseFloat(getComputedStyle(sheet).paddingRight) || 20;
+  return { x: sheet.clientWidth - Math.max(padR * 0.5, spSize() * 0.3), y };
+}
+function turnSpider(target, token) {
+  const t0 = performance.now();
+  const frame = now => {
+    if (token !== tour.token) return;
+    const p = Math.min(1, (now - t0) / 280);
+    spAng = turnToward(spAng, target, p >= 1 ? 1 : 0.25);
+    drawSpider();
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+function restSpider(animate) {
+  const to = restPoint();
+  if (!animate || reduceMotion) {
+    spPos = to; spAng = Math.PI; spResting = true;
+    spiderEl.hidden = false; spiderEl.classList.remove('walking'); drawSpider();
+    return;
+  }
+  const token = tour.token;
+  moveSpider(to, 520, token, null, () => {
+    spResting = true;
+    spiderEl.classList.remove('walking');
+    turnSpider(Math.PI, token);
+  });
+}
 
 /* =========================================================
    7. Main run: spider reads the whole document
@@ -1013,7 +1223,9 @@ function runMain(instant = false) {
   clearWeb(); resetLit(); visited = []; rowBuf = [];
   $('#factList').innerHTML = '';
   setCounters(0);
-  spPos = { x: 28, y: 28 }; spAng = 0.6; drawSpider();
+  spResting = false;
+  lastVisited = null;
+  if (spiderEl.hidden) { spPos = restPoint(); spAng = Math.PI; drawSpider(); }
   startTour(A.facts, {
     instant,
     onVisit: (f, animate, prev) => {
@@ -1052,7 +1264,7 @@ function setCounters(found, sentIdx = -1) {
 
 function updateButtons() {
   $('#btnSkip').disabled = !tour.active;
-  $('#btnRun').textContent = tour.active ? 'Паук читает…' : 'Пустить ещё раз';
+  $('#btnRun .lbl').textContent = tour.active ? 'Читает…' : 'Ещё раз';
   $('#btnRun').disabled = tour.active;
 }
 
@@ -1078,7 +1290,6 @@ function factRowHtml(f) {
 function appendFactRow(f) { $('#factList').insertAdjacentHTML('beforeend', factRowHtml(f)); }
 
 function renderPanel() {
-  $('#foundName').textContent = docName;
   const listed = A.facts.filter(f => f.kind !== 'key').length;
   $('#cFacts').textContent = listed ? ' ' + listed : '';
   $('#cSum').textContent = A.key.length ? ' ' + A.key.length : '';
@@ -1102,11 +1313,15 @@ function renderPanel() {
     let h = -1;
     for (let b = s.b; b >= 0; b--) if (A.blocks[b].type === 'h') { h = b; break; }
     if (h !== lastHead && h >= 0) { html += `<div class="sum-head">${esc(A.blocks[h].text)}</div>`; lastHead = h; }
-    html += `<button class="sum-item" type="button" data-f="${f.id}">${esc(s.text)}</button>`;
+    html += `<button class="sum-item" type="button" data-f="${f.id}"><span>${esc(s.text)}</span></button>`;
   }
   $('#sumList').innerHTML = html || '<p class="empty">Текст слишком короткий для конспекта.</p>';
 
-  $('#chips').innerHTML = A.keywords.map(k => `<button class="chip" type="button" data-q="${esc(k.word)}">${esc(k.word)}<span class="mono">${k.count}</span></button>`).join('')
+  const top = A.keywords.length ? A.keywords[0].count : 1, low = A.keywords.length ? A.keywords[A.keywords.length - 1].count : 1;
+  $('#chips').innerHTML = A.keywords.map(k => {
+    const size = 13 + 7 * (top === low ? 0.5 : (k.count - low) / (top - low));
+    return `<button class="chip" type="button" data-q="${esc(k.word)}" style="font-size:${size.toFixed(1)}px">${esc(k.word)}<span class="mono">${k.count}</span></button>`;
+  }).join('')
     || '<p class="empty">Повторяющихся слов не нашлось.</p>';
 }
 
@@ -1144,11 +1359,12 @@ function goTo(f) {
     window.scrollTo({ top: Math.max(0, target), behavior: reduceMotion ? 'auto' : 'smooth' });
   });
   lastUserScroll = 0;
-  const token = tour.token;
-  moveSpider(anchor(f), reduceMotion ? 1 : 450, token, null, () => {
+  const token = ++tour.token;
+  lastVisited = f;
+  moveSpider(anchor(f), reduceMotion ? 1 : 480, token, null, () => {
     spiderEl.classList.remove('walking');
-    lastVisited = f;
     f.el.classList.remove('flash'); void f.el.offsetWidth; f.el.classList.add('flash');
+    setTimeout(() => { if (token === tour.token && !tour.active) restSpider(true); }, 900);
   });
 }
 
@@ -1310,17 +1526,26 @@ async function openFile(file) {
    11. Loading a text into the app
    ========================================================= */
 let currentText = '';
+let isSampleDoc = false;
+let sampleKey = '';
+let modePref = 'auto';
 
-function loadText(text, name, isSample) {
+function loadText(text, name, isSample, key = '') {
   finishTour();
   currentText = text;
   docName = name;
-  $('#sampleNote').hidden = !isSample;
+  isSampleDoc = isSample;
+  sampleKey = isSample ? key : '';
+  const intro = $('#intro');
+  intro.classList.toggle('compact', !isSample);
+  $('#introTitle').textContent = isSample ? 'Перетащите сюда документ' : 'Открыть другой документ';
+  document.querySelectorAll('.sample-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sample === sampleKey)));
   filter = null;
   clearSearch();
   $('#q').value = '';
-  A = analyze(text, $('#mode').value);
+  A = analyze(text, modePref);
   lastVisited = null;
+  renderModes();
   renderDoc();
   renderPanel();
   showTab('facts');
@@ -1330,7 +1555,16 @@ function loadText(text, name, isSample) {
 
 function reanalyze() {
   if (!currentText) return;
-  loadText(currentText, docName, !$('#sampleNote').hidden);
+  loadText(currentText, docName, isSampleDoc, sampleKey);
+}
+
+function renderModes() {
+  document.querySelectorAll('.mode').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.mode === modePref));
+    const detected = modePref === 'auto' && b.dataset.mode === A.mode;
+    b.classList.toggle('detected', detected);
+    b.title = detected ? 'Режим определён автоматически' : '';
+  });
 }
 
 /* =========================================================
@@ -1457,7 +1691,7 @@ const SAMPLES = {
 
 function loadSample(key) {
   const s = SAMPLES[key];
-  loadText(s.text, s.name, true);
+  loadText(s.text, s.name, true, key);
 }
 
 /* =========================================================
@@ -1504,8 +1738,13 @@ async function copySummary() {
 }
 
 $('#file').addEventListener('change', e => { const f = e.target.files[0]; if (f) openFile(f); e.target.value = ''; });
-$('#sample').addEventListener('change', e => loadSample(e.target.value));
-$('#mode').addEventListener('change', reanalyze);
+document.querySelectorAll('.sample-btn').forEach(b => b.addEventListener('click', () => loadSample(b.dataset.sample)));
+$('#modes').addEventListener('click', e => {
+  const b = e.target.closest('.mode');
+  if (!b || b.dataset.mode === modePref) return;
+  modePref = b.dataset.mode;
+  reanalyze();
+});
 $('#btnRun').addEventListener('click', () => runMain(false));
 $('#btnSkip').addEventListener('click', finishTour);
 $('#btnCopy').addEventListener('click', copySummary);
@@ -1536,7 +1775,7 @@ docEl.addEventListener('click', e => {
 
 // paste
 const pasteBox = $('#pasteBox');
-$('#btnPaste').addEventListener('click', () => { pasteBox.hidden = false; $('#pasteText').focus(); });
+['#btnPaste', '#btnPaste2'].forEach(id => $(id).addEventListener('click', () => { pasteBox.hidden = false; $('#pasteText').focus(); }));
 $('#pasteCancel').addEventListener('click', () => { pasteBox.hidden = true; });
 $('#pasteGo').addEventListener('click', () => {
   const t = $('#pasteText').value;
@@ -1567,10 +1806,13 @@ addEventListener('drop', e => {
 // layout changes move the text, so the web is redrawn
 function measureHeader() { document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px'); }
 let resizeTimer = 0;
-addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { measureHeader(); redrawWeb(); }, 120); });
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { measureHeader(); redrawWeb(); drawBackdrop(); }, 120); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureHeader(); redrawWeb(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawBackdrop);
+new MutationObserver(drawBackdrop).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 measureHeader();
+drawBackdrop();
 loadSample('contract');
 </script>
 </body>
