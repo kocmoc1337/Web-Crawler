@@ -295,6 +295,13 @@ mark.off { background: none !important; box-shadow: none !important; }
 .tally-num { font: 600 54px/.82 var(--font-serif); letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
 .tally-txt { display: grid; gap: 4px; min-width: 0; padding-bottom: 1px; }
 .tally-label { font: 600 12px/1 var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); }
+.cam { margin-left: auto; align-self: center; position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; }
+.cam input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.cam-sw { position: relative; width: 34px; height: 20px; border-radius: 999px; background: var(--line); transition: background-color .2s; flex: none; }
+.cam-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 2px var(--shadow); transition: transform .2s; }
+.cam input:checked + .cam-sw { background: var(--accent); }
+.cam input:checked + .cam-sw::after { transform: translateX(14px); }
+.cam input:focus-visible + .cam-sw { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tally-of { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .progress { position: relative; height: 3px; background: var(--bg-2); border-radius: 3px; margin: 2px 6px 4px 0; }
 .progress i { position: relative; display: block; height: 100%; width: 0; background: var(--accent); border-radius: 3px; transition: width .2s linear; }
@@ -550,6 +557,9 @@ mark.off { background: none !important; box-shadow: none !important; }
           <div class="tally-label">Найдено</div>
           <div class="tally-of" id="nOf"></div>
         </div>
+        <label class="cam" title="Камера следует за пауком">
+          <input type="checkbox" id="cam" checked><span class="cam-sw" aria-hidden="true"></span>Камера
+        </label>
       </div>
       <div class="progress" aria-hidden="true"><i id="prog"></i></div>
       <div class="prow">
@@ -1125,7 +1135,11 @@ function drawSpider() {
 }
 
 let lastUserScroll = 0;
-['wheel', 'touchmove', 'keydown'].forEach(ev => addEventListener(ev, () => { lastUserScroll = Date.now(); }, { passive: true }));
+// the reader's own scrolling pauses the camera for a moment (not when scrolling the panel)
+['wheel', 'touchmove', 'keydown'].forEach(ev => addEventListener(ev, e => {
+  if (e.target && e.target.closest && e.target.closest('#panel, #pasteBox')) return;
+  lastUserScroll = Date.now();
+}, { passive: true }));
 
 function freeArea() {
   const top = Math.max(0, $('#top').getBoundingClientRect().bottom);
@@ -1133,14 +1147,13 @@ function freeArea() {
   return { top, bottom };
 }
 
+/* Camera: glides the page so the spider stays near the middle of the visible area. */
 function followSpider() {
-  if (Date.now() - lastUserScroll < 2500) return;
-  // scroll only when the spider nears the edge of the visible area
+  if (!$('#cam').checked || Date.now() - lastUserScroll < 1800) return;
   const y = sheet.getBoundingClientRect().top + spPos.y;
   const fa = freeArea();
-  const lo = fa.top + 70, hi = fa.bottom - 110;
-  const diff = y > hi ? y - hi : y < lo ? y - lo : 0;
-  if (Math.abs(diff) > 2) window.scrollBy(0, diff * 0.18);
+  const diff = y - (fa.top + (fa.bottom - fa.top) * 0.45);
+  if (Math.abs(diff) > 4) window.scrollBy(0, diff * 0.12);
 }
 
 const turnToward = (a, target, k) => a + (((target - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * k;
@@ -1606,8 +1619,8 @@ function loadText(text, name, isSample, key = '', autoplay = false) {
   setCounters(0);
   showTab('facts');
   if (!isSample) window.scrollTo({ top: 0 });
-  // first visit: let the hero spider drop in first, and don't drag the page away from it
-  setTimeout(() => runMain(false, !autoplay), autoplay ? 1600 : 350);
+  // first visit: let the hero spider drop in first, then the camera takes over
+  setTimeout(() => runMain(false), autoplay ? 1700 : 350);
 }
 
 function reanalyze() {
@@ -1803,6 +1816,11 @@ $('#modes').addEventListener('click', e => {
   reanalyze();
 });
 $('#btnRun').addEventListener('click', () => runMain(false));
+try { if (localStorage.getItem('pauk-cam') === 'off') $('#cam').checked = false; } catch (e) { /* storage unavailable */ }
+$('#cam').addEventListener('change', e => {
+  lastUserScroll = 0;
+  try { localStorage.setItem('pauk-cam', e.target.checked ? 'on' : 'off'); } catch (err) { /* storage unavailable */ }
+});
 $('#btnSkip').addEventListener('click', finishTour);
 $('#btnCopy').addEventListener('click', copySummary);
 $('#grab').addEventListener('click', () => setPanelOpen(!$('#panel').classList.contains('open')));
